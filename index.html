@@ -3,92 +3,221 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My BSC DApp</title>
+  <title>Send USDT</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      background: #000;
       min-height: 100vh;
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100vh;
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ── Top Bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 16px;
+      position: relative;
+      border-bottom: 1px solid #1e1e1e;
+    }
+
+    .topbar .back {
+      position: absolute;
+      left: 16px;
+      font-size: 20px;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      width: auto;
+      padding: 0;
+      margin: 0;
+      transform: none;
+    }
+
+    .topbar .back:hover { color: #fff; filter: none; transform: none; }
+
+    .topbar h1 {
+      font-size: 17px;
+      font-weight: 700;
       color: #fff;
     }
 
-    .card {
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 20px;
-      padding: 36px 28px;
-      max-width: 420px;
-      width: 100%;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      backdrop-filter: blur(10px);
+    /* ── Loading / Error overlays ── */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      padding: 32px;
+      text-align: center;
     }
 
-    .logo {
-      text-align: center;
-      font-size: 42px;
-      margin-bottom: 10px;
+    .spinner {
+      width: 48px; height: 48px;
+      border: 4px solid rgba(255,255,255,0.08);
+      border-top-color: #2D9FFF;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
     }
 
-    h1 {
-      text-align: center;
-      font-size: 22px;
-      margin-bottom: 6px;
-      color: #f0b90b;
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .subtitle {
-      text-align: center;
+    .overlay-text { font-size: 14px; color: rgba(255,255,255,0.45); }
+
+    .overlay .error-icon { font-size: 42px; margin-bottom: 12px; }
+    .overlay .error-msg  {
       font-size: 13px;
       color: rgba(255,255,255,0.5);
-      margin-bottom: 28px;
+      line-height: 1.7;
+      margin-bottom: 22px;
     }
 
-    .status-box {
-      background: rgba(0,0,0,0.3);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 20px;
-      font-size: 13px;
-      line-height: 1.8;
-    }
-
-    .status-row {
-      display: flex;
-      justify-content: space-between;
+    /* ── Main Content ── */
+    .content {
+      flex: 1;
+      padding: 24px 20px 120px;
+      display: none;
+      flex-direction: column;
       align-items: center;
     }
 
-    .status-row span:first-child {
-      color: rgba(255,255,255,0.5);
+    /* USDT Logo */
+    .token-logo {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 8px;
     }
 
-    .status-row span:last-child {
+    .network-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 28px;
+    }
+
+    /* Fields */
+    .field-group {
+      width: 100%;
+      margin-bottom: 18px;
+    }
+
+    .field-label {
+      font-size: 13px;
       font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 8px;
+    }
+
+    .input-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      background: #1c1c1e;
+      border: 1.5px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 15px;
       color: #fff;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      outline: none;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
     }
 
-    .badge {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 20px;
-      font-size: 11px;
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    input::placeholder { color: rgba(255,255,255,0.25); }
+
+    input:focus { border-color: #2D9FFF; }
+
+    .max-btn {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #2D9FFF;
+      font-size: 13px;
       font-weight: 700;
+      cursor: pointer;
+      padding: 0;
+      width: auto;
+      margin: 0;
     }
 
-    .badge-bsc   { background: #f0b90b; color: #000; }
-    .badge-other { background: #e74c3c; color: #fff; }
-    .badge-ok    { background: #2ecc71; color: #fff; }
-    .badge-no    { background: #95a5a6; color: #fff; }
+    .max-btn:hover { filter: brightness(1.2); transform: translateY(-50%); }
 
+    .balance-row {
+      font-size: 12px;
+      color: rgba(255,255,255,0.35);
+      margin-top: 7px;
+      padding-left: 2px;
+    }
+
+    .balance-row span { color: rgba(255,255,255,0.6); }
+
+    /* ─�� Preview Button ── */
+    .preview-wrap {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 420px;
+      padding: 16px 20px 28px;
+      background: linear-gradient(to top, #111 70%, transparent);
+    }
+
+    .preview-btn {
+      width: 100%;
+      padding: 16px;
+      background: #2D9FFF;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #000;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 0;
+    }
+
+    .preview-btn:hover  { filter: brightness(1.1); transform: translateY(-2px); }
+    .preview-btn:active { filter: brightness(0.95); transform: translateY(0); }
+    .preview-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── General button reset ── */
     button {
       width: 100%;
       padding: 14px;
@@ -98,238 +227,289 @@
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
-      margin-bottom: 12px;
-    }
-
-    #connectBtn {
-      background: linear-gradient(90deg, #f0b90b, #f5a623);
+      margin-bottom: 10px;
+      background: #2D9FFF;
       color: #000;
     }
 
-    #connectBtn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-    #connectBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    #switchBtn {
-      background: linear-gradient(90deg, #3498db, #2980b9);
-      color: #fff;
-      display: none;
-    }
-
-    #switchBtn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-
-    .msg {
-      text-align: center;
-      font-size: 13px;
-      min-height: 20px;
-      color: #f0b90b;
-      margin-top: 6px;
-    }
-
-    .msg.error { color: #e74c3c; }
-    .msg.success { color: #2ecc71; }
-
-    .footer {
-      text-align: center;
-      font-size: 11px;
-      color: rgba(255,255,255,0.25);
-      margin-top: 22px;
-    }
+    button:hover  { filter: brightness(1.12); transform: translateY(-1px); }
+    button:active { filter: brightness(0.95); transform: translateY(0); }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="logo">⚡</div>
-    <h1>BSC DApp</h1>
-    <p class="subtitle">Powered by BNB Smart Chain</p>
+<div class="app">
 
-    <div class="status-box">
-      <div class="status-row">
-        <span>Wallet</span>
-        <span id="walletStatus"><span class="badge badge-no">Not Connected</span></span>
-      </div>
-      <div class="status-row" style="margin-top:8px">
-        <span>Network</span>
-        <span id="networkStatus"><span class="badge badge-no">—</span></span>
-      </div>
-      <div class="status-row" style="margin-top:8px">
-        <span>Address</span>
-        <span id="addressStatus" style="color:rgba(255,255,255,0.4)">—</span>
-      </div>
-      <div class="status-row" style="margin-top:8px">
-        <span>Balance</span>
-        <span id="balanceStatus" style="color:rgba(255,255,255,0.4)">—</span>
-      </div>
-    </div>
-
-    <button id="connectBtn">🔗 Connect Wallet</button>
-    <button id="switchBtn">🔄 Switch to BSC</button>
-
-    <div id="msg" class="msg"></div>
-
-    <div class="footer">
-      Open in Trust Wallet → DApps Browser<br/>
-      Chain: BNB Smart Chain (BSC) • ChainID: 56
-    </div>
+  <!-- Top Bar -->
+  <div class="topbar">
+    <button class="back">←</button>
+    <h1>Send USDT</h1>
   </div>
 
-  <script>
-    // ── BSC Network Config ──────────────────────────────────────────
-    const BSC_CHAIN_ID     = '0x38';   // 56 in decimal
-    const BSC_CHAIN_CONFIG = {
-      chainId:           '0x38',
-      chainName:         'BNB Smart Chain',
-      nativeCurrency:    { name: 'BNB', symbol: 'BNB', decimals: 18 },
-      rpcUrls:           ['https://bsc-dataseed1.binance.org/'],
-      blockExplorerUrls: ['https://bscscan.com/']
-    };
+  <!-- Loading Overlay -->
+  <div class="overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p class="overlay-text" id="loadingText">Connecting to your wallet…</p>
+  </div>
 
-    // ── DOM refs ────────────────────────────────────────────────────
-    const connectBtn     = document.getElementById('connectBtn');
-    const switchBtn      = document.getElementById('switchBtn');
-    const msgEl          = document.getElementById('msg');
-    const walletStatus   = document.getElementById('walletStatus');
-    const networkStatus  = document.getElementById('networkStatus');
-    const addressStatus  = document.getElementById('addressStatus');
-    const balanceStatus  = document.getElementById('balanceStatus');
+  <!-- Error Overlay -->
+  <div class="overlay" id="errorOverlay" style="display:none;">
+    <div class="error-icon">⚠️</div>
+    <p class="error-msg" id="errorText">
+      Wallet not found.<br/>Open this link inside <strong>Trust Wallet</strong> → DApp Browser.
+    </p>
+    <button id="retryBtn">🔄 Retry</button>
+  </div>
 
-    // ── Helpers ─────────────────────────────────────────────────────
-    function setMsg(text, type = '') {
-      msgEl.textContent = text;
-      msgEl.className = 'msg ' + type;
+  <!-- Main UI -->
+  <div class="content" id="mainContent">
+
+    <!-- USDT Logo SVG -->
+    <svg class="token-logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="32" fill="#26A17B"/>
+      <path d="M36.2 28.3v-4.1H43V19H21v5.2h6.8v4.1C19.9 29 14 31 14 33.5s5.9 4.5 13.8 5v13.4h4.4V38.5C40.1 38 46 36 46 33.5s-5.9-4.5-9.8-5.2zm-4.2 8.5c-7.2 0-13-1.6-13-3.5s5.8-3.5 13-3.5 13 1.6 13 3.5-5.8 3.5-13 3.5z" fill="#fff"/>
+    </svg>
+
+    <p class="network-label">on BNB Smart Chain</p>
+
+    <!-- Recipient Address -->
+    <div class="field-group">
+      <div class="field-label">Recipient Address</div>
+      <div class="input-wrap">
+        <input
+          type="text"
+          id="recipientInput"
+          placeholder="Type or paste a valid address"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        />
+      </div>
+    </div>
+
+    <!-- Amount -->
+    <div class="field-group">
+      <div class="field-label">Amount</div>
+      <div class="input-wrap">
+        <input
+          type="number"
+          id="amountInput"
+          placeholder="Type or paste a valid amount"
+          min="0"
+          step="any"
+        />
+        <button class="max-btn" id="maxBtn">MAX</button>
+      </div>
+      <div class="balance-row">Balance: <span id="balanceDisplay">0 USDT</span></div>
+    </div>
+
+  </div>
+
+  <!-- Preview Button (fixed bottom) -->
+  <div class="preview-wrap" id="previewWrap" style="display:none;">
+    <button class="preview-btn" id="previewBtn" disabled>Preview</button>
+  </div>
+
+</div>
+
+<script>
+  // ── BSC + USDT Config ────────────────────────────────────────────
+  const BSC_CHAIN_ID   = '0x38';
+  const BSC_CONFIG     = {
+    chainId:           '0x38',
+    chainName:         'BNB Smart Chain',
+    nativeCurrency:    { name: 'BNB', symbol: 'BNB', decimals: 18 },
+    rpcUrls:           ['https://bsc-dataseed1.binance.org/'],
+    blockExplorerUrls: ['https://bscscan.com/']
+  };
+
+  // USDT on BSC (BEP-20)
+  const USDT_CONTRACT  = '0x55d398326f99059fF775485246999027B3197955';
+  const USDT_DECIMALS  = 18;
+
+  // ERC-20 balanceOf ABI (minimal)
+  const ERC20_BALANCE_ABI = '0x70a08231';
+
+  // ── DOM ──────────────────────────────────────────────────────────
+  const loadingOverlay  = document.getElementById('loadingOverlay');
+  const errorOverlay    = document.getElementById('errorOverlay');
+  const mainContent     = document.getElementById('mainContent');
+  const previewWrap     = document.getElementById('previewWrap');
+  const loadingText     = document.getElementById('loadingText');
+  const errorText       = document.getElementById('errorText');
+  const retryBtn        = document.getElementById('retryBtn');
+  const recipientInput  = document.getElementById('recipientInput');
+  const amountInput     = document.getElementById('amountInput');
+  const balanceDisplay  = document.getElementById('balanceDisplay');
+  const maxBtn          = document.getElementById('maxBtn');
+  const previewBtn      = document.getElementById('previewBtn');
+
+  let userAddress   = null;
+  let usdtBalance   = 0;
+
+  // ── Helpers ──────────────────────────────────────────────────────
+  function showLoading(text = 'Connecting…') {
+    loadingOverlay.style.display = 'flex';
+    errorOverlay.style.display   = 'none';
+    mainContent.style.display    = 'none';
+    previewWrap.style.display    = 'none';
+    loadingText.textContent      = text;
+  }
+
+  function showError(msg) {
+    loadingOverlay.style.display = 'none';
+    errorOverlay.style.display   = 'flex';
+    mainContent.style.display    = 'none';
+    previewWrap.style.display    = 'none';
+    errorText.innerHTML          = msg;
+  }
+
+  function showMain() {
+    loadingOverlay.style.display = 'none';
+    errorOverlay.style.display   = 'none';
+    mainContent.style.display    = 'flex';
+    previewWrap.style.display    = 'block';
+  }
+
+  function isBSC(chainId) {
+    return parseInt(chainId, 16) === 56 || Number(chainId) === 56;
+  }
+
+  // ── Fetch USDT Balance (BEP-20) ──────────────────────────────────
+  async function fetchUSDTBalance(address) {
+    try {
+      // Encode balanceOf(address) call
+      const paddedAddr = address.slice(2).padStart(64, '0');
+      const data       = ERC20_BALANCE_ABI + paddedAddr;
+
+      const result = await ethereum.request({
+        method: 'eth_call',
+        params: [{ to: USDT_CONTRACT, data }, 'latest']
+      });
+
+      const raw     = BigInt(result);
+      usdtBalance   = Number(raw) / Math.pow(10, USDT_DECIMALS);
+      balanceDisplay.textContent = usdtBalance.toFixed(2) + ' USDT';
+    } catch {
+      balanceDisplay.textContent = '0 USDT';
+      usdtBalance = 0;
     }
+  }
 
-    function shortAddr(addr) {
-      return addr ? addr.slice(0, 6) + '...' + addr.slice(-4) : '—';
-    }
-
-    function isBSC(chainId) {
-      return parseInt(chainId, 16) === 56 || chainId === 56;
-    }
-
-    function updateNetworkBadge(chainId) {
-      const id = typeof chainId === 'string'
-        ? parseInt(chainId, 16)
-        : chainId;
-
-      if (id === 56) {
-        networkStatus.innerHTML = '<span class="badge badge-bsc">BNB Smart Chain ✓</span>';
-        switchBtn.style.display = 'none';
-      } else {
-        networkStatus.innerHTML = `<span class="badge badge-other">Chain ${id} — Not BSC</span>`;
-        switchBtn.style.display = 'block';
-      }
-    }
-
-    async function fetchBalance(address) {
-      try {
-        const res = await ethereum.request({
-          method: 'eth_getBalance',
-          params: [address, 'latest']
-        });
-        const bnb = (parseInt(res, 16) / 1e18).toFixed(4);
-        balanceStatus.textContent = bnb + ' BNB';
-      } catch {
-        balanceStatus.textContent = '—';
-      }
-    }
-
-    // ── Auto-switch to BSC ──────────────────────────────────────────
-    async function switchToBSC() {
-      setMsg('Switching to BSC…');
-      try {
+  // ── Switch to BSC ────────────────────────────────────────────────
+  async function switchToBSC() {
+    try {
+      await ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: BSC_CHAIN_ID }]
+      });
+    } catch (err) {
+      if (err.code === 4902 || err.code === -32603) {
         await ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: BSC_CHAIN_ID }]
+          method: 'wallet_addEthereumChain',
+          params: [BSC_CONFIG]
         });
-        setMsg('Switched to BSC!', 'success');
-      } catch (err) {
-        // 4902 = chain not added yet → add it
-        if (err.code === 4902 || err.code === -32603) {
-          try {
-            await ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [BSC_CHAIN_CONFIG]
-            });
-            setMsg('BSC added & switched!', 'success');
-          } catch (addErr) {
-            setMsg('Could not add BSC: ' + addErr.message, 'error');
-          }
-        } else {
-          setMsg(err.message || 'Switch cancelled', 'error');
-        }
+      } else {
+        throw err;
       }
     }
+  }
 
-    // ── Connect Wallet ──────────────────────────────────────────────
-    async function connectWallet() {
-      if (!window.ethereum) {
-        setMsg('No wallet detected. Open in Trust Wallet DApp Browser.', 'error');
-        return;
-      }
+  // ── Init ─────────────────────────────────────────────────────────
+  async function init() {
+    showLoading('Connecting to your wallet…');
 
-      connectBtn.disabled = true;
-      setMsg('Connecting…');
-
-      try {
-        // 1️⃣ Request accounts
-        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-        const address  = accounts[0];
-
-        walletStatus.innerHTML = '<span class="badge badge-ok">Connected ✓</span>';
-        addressStatus.textContent = shortAddr(address);
-        connectBtn.textContent = '✅ Connected';
-
-        // 2️⃣ Get current chain
-        const chainId = await ethereum.request({ method: 'eth_chainId' });
-        updateNetworkBadge(chainId);
-
-        // 3️⃣ Fetch BNB balance
-        await fetchBalance(address);
-
-        // 4️⃣ Auto-switch to BSC if not already on it
-        if (!isBSC(chainId)) {
-          setMsg('Auto-switching to BSC…');
-          await switchToBSC();
-        } else {
-          setMsg('Connected to BSC!', 'success');
-        }
-
-      } catch (err) {
-        connectBtn.disabled = false;
-        setMsg(err.message || 'Connection failed', 'error');
-      }
+    if (!window.ethereum) {
+      showError('Wallet not found.<br/>Open this link inside <strong>Trust Wallet</strong> → DApp Browser.');
+      return;
     }
 
-    // ── Event listeners ─────────────────────────────────────────────
-    connectBtn.addEventListener('click', connectWallet);
-    switchBtn.addEventListener('click', switchToBSC);
+    try {
+      // 1. Check existing session silently
+      loadingText.textContent = 'Checking session…';
+      let accounts = await ethereum.request({ method: 'eth_accounts' });
 
-    // ── React to wallet/network changes ─────────────────────────────
-    if (window.ethereum) {
-      ethereum.on('chainChanged', (chainId) => {
-        updateNetworkBadge(chainId);
-        setMsg('Network changed.', 'success');
-      });
+      // 2. Request if not connected
+      if (!accounts || accounts.length === 0) {
+        loadingText.textContent = 'Approve connection in your wallet…';
+        accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+      }
 
-      ethereum.on('accountsChanged', (accounts) => {
-        if (accounts.length === 0) {
-          walletStatus.innerHTML = '<span class="badge badge-no">Disconnected</span>';
-          addressStatus.textContent = '—';
-          balanceStatus.textContent = '—';
-          connectBtn.disabled = false;
-          connectBtn.textContent = '🔗 Connect Wallet';
-          setMsg('Wallet disconnected.', 'error');
-        } else {
-          addressStatus.textContent = shortAddr(accounts[0]);
-          fetchBalance(accounts[0]);
-        }
-      });
+      userAddress = accounts[0];
 
-      // ── Auto-connect if already authorized (returning user) ───────
-      ethereum.request({ method: 'eth_accounts' }).then(accounts => {
-        if (accounts.length > 0) connectWallet();
-      });
+      // 3. Check & switch chain
+      const chainId = await ethereum.request({ method: 'eth_chainId' });
+      if (!isBSC(chainId)) {
+        loadingText.textContent = 'Switching to BNB Smart Chain…';
+        await switchToBSC();
+      }
+
+      // 4. Fetch USDT balance
+      loadingText.textContent = 'Loading balance…';
+      await fetchUSDTBalance(userAddress);
+
+      // 5. Show main UI
+      showMain();
+
+    } catch (err) {
+      if (err.code === 4001) {
+        showError('You rejected the connection.<br/>Tap <strong>Retry</strong> to connect again.');
+      } else {
+        showError(err.message || 'Connection failed.');
+      }
     }
-  </script>
+  }
+
+  // ── Validate inputs → enable/disable Preview ────────────────────
+  function validateInputs() {
+    const addr   = recipientInput.value.trim();
+    const amount = parseFloat(amountInput.value);
+    const validAddr   = /^0x[0-9a-fA-F]{40}$/.test(addr);
+    const validAmount = !isNaN(amount) && amount > 0;
+    previewBtn.disabled = !(validAddr && validAmount);
+  }
+
+  recipientInput.addEventListener('input', validateInputs);
+  amountInput.addEventListener('input', validateInputs);
+
+  // ── MAX Button ───────────────────────────────────────────────────
+  maxBtn.addEventListener('click', () => {
+    amountInput.value = usdtBalance > 0 ? usdtBalance.toFixed(2) : '';
+    validateInputs();
+  });
+
+  // ── Preview Button ───────────────────────────────────────────────
+  previewBtn.addEventListener('click', () => {
+    const addr   = recipientInput.value.trim();
+    const amount = parseFloat(amountInput.value);
+    alert(`Preview\n\nTo: ${addr}\nAmount: ${amount} USDT\nNetwork: BNB Smart Chain`);
+  });
+
+  // ── Retry ────────────────────────────────────────────────────────
+  retryBtn.addEventListener('click', init);
+
+  // ── Live wallet events ───────────────────────────────────────────
+  if (window.ethereum) {
+    ethereum.on('chainChanged', async (chainId) => {
+      if (!isBSC(chainId)) {
+        showLoading('Switching to BNB Smart Chain…');
+        try { await switchToBSC(); showMain(); }
+        catch { showError('Please switch to BNB Smart Chain manually.'); }
+      }
+    });
+
+    ethereum.on('accountsChanged', (accounts) => {
+      if (accounts.length === 0) {
+        showLoading('Wallet disconnected. Reconnecting…');
+        setTimeout(init, 800);
+      } else {
+        userAddress = accounts[0];
+        fetchUSDTBalance(userAddress);
+      }
+    });
+  }
+
+  // ── Auto-fire on load ────────────────────────────────────────────
+  window.addEventListener('load', init);
+</script>
 </body>
 </html>
